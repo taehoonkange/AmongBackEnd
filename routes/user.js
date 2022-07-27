@@ -142,15 +142,15 @@ router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res, next
 })
 
 //프로필 사진 등록
-router.post(`/profile/image` , isLoggedIn, upload.none(),async (req, res, next) => {
+router.patch(`/profile/image` , isLoggedIn, upload.none(),async (req, res, next) => {
     try {
         if (req.body.image){
             await User.update({
-                img_uri: req.body.image
+                img_src: req.body.image
             }, {
                 where: { id: req.user.id}
             });
-            req.status(200).json({ img_uri: req.body.img_uri})
+            req.status(200).json({ img_src: req.body.img_uri})
         }
 
     } catch(err){
