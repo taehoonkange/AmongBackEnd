@@ -12,7 +12,7 @@ router.post(`/`, isLoggedIn, async (req, res, next) => {
         const ticket = await Ticket.create({
             name: req.body.name,
             description: req.body.description,
-            image_uri: req.body.image_uri,
+            img_src: req.body.img_src,
             UserId: req.user.id
         })
         res.status(200).json(ticket)
