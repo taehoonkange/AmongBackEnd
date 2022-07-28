@@ -18,7 +18,7 @@ try {
 router.get( `/`, async(req, res, next) =>{
     try{
         if(req.user){
-            const fullUserWithoutWalletAddress = await user.findOne({
+            const fullUserWithoutWalletAddress = await User.findOne({
                 where: {id: req.user.id},
                 attributes: {
                     exclude: [`wallet_address`]
@@ -35,7 +35,7 @@ router.get( `/`, async(req, res, next) =>{
     }
 })
 
-// 유저 티켓북 가져오기
+// 유저 티켓 조회
 router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
     try{
         const ticket = await Ticket.findAll({
