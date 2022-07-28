@@ -1,5 +1,6 @@
 const express = require(`express`)
 const passport = require(`passport`)
+const path = require(`path`)
 const multer = require(`multer`)
 const { User, Ticket } = require(`../models`)
 const { isLoggedIn, isNotLoggedIn} = require(`./middlewares`)
@@ -37,7 +38,7 @@ router.get( `/`, async(req, res, next) =>{
 // 유저 티켓북 가져오기
 router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
     try{
-        const ticket = await ticket.findAll({
+        const ticket = await Ticket.findAll({
             where: {UserId: req.user.id}
 
         });
@@ -97,10 +98,38 @@ router.post(`/`, isNotLoggedIn,async (req, res, next) => {
             return res.status(403).send(`이미 생성되었습니다.`)
         }
         await User.create({
-            wallet_address: req.body.wallet_address,
-            password: `PASS`
+            wallet_address: req.body.wallet_address
         })
         res.status(201).send(`회원가입에 성공하였습니다.`)
+    }
+    catch(error){
+        console.error(error)
+        next(error)
+    }
+
+})
+
+// 유저 정보
+router.get(`/:id`, async (req, res, next) => {
+    try {
+        const user = await User.findOne({
+            where: {
+                id: req.params.id
+            }
+        })
+        if(!user){
+            return res.status(403).send(`존재 하지 않는 유저입니다.`)
+        }
+        const fullUser = await User.findOne({
+            where: { id: user.id},
+            attributes: {
+                exclude: [ `wallet_address` ]
+            },
+            include: [{
+                model: Ticket
+            }]
+        })
+        res.status(200).json(fullUser)
     }
     catch(error){
         console.error(error)
@@ -118,7 +147,7 @@ router.patch(`/profile/nickname` , isLoggedIn, async (req, res, next) => {
         }, {
             where: { id: req.user.id}
         });
-        req.status(200).json({ nickname: req.body.nickname})
+        res.status(200).json({ nickname: req.body.nickname})
     } catch(err){
         console.error(err)
         next(err)
@@ -131,7 +160,7 @@ const upload = multer({
             done(null, `uploads`);
         },
         filename(req, file, done){
-            const ext = path.extname(file.originalnameginalname)
+            const ext = path.extname(file.originalname)
             const basename = path.basename(file.originalname, ext)
             done(null, basename + `_`+ new Date().getTime() + ext);
         }
@@ -139,27 +168,25 @@ const upload = multer({
     limit: { fileSize: 20 * 1024 * 1024 }
 })
 
-//프로필 사진 저장
-router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res, next) => {
-    console.log(req.files);
-    res.json(req.files.map((v) => v.filename))
-})
-
 //프로필 사진 등록
 router.patch(`/profile/image` , isLoggedIn, upload.none(),async (req, res, next) => {
     try {
-        if (req.body.image){
-            await User.update({
-                img_src: req.body.image
-            }, {
-                where: { id: req.user.id}
-            });
-            req.status(200).json({ img_src: req.body.img_uri})
-        }
-
+        const user = await User.findOne({
+            where: { id: req.user.id}
+        })
+        await user.update({
+            img_src: req.body.image
+        })
+        console.log(req.body)
+        res.status(200).json(req.body.image)
     } catch(err){
         console.error(err)
         next(err)
     }
+})
+//프로필 사진 저장
+router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res, next) => {
+    console.log(req.file);
+    res.json(req.file.filename)
 })
 module.exports = router
