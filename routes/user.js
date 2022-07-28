@@ -66,6 +66,9 @@ router.post(`/login` , isNotLoggedIn,(req, res, next) => {
             }
             const fullUser = await User.findOne({
                 where: { id: user.id},
+                attributes: {
+                    exclude: [ `wallet_address` ]
+                },
                 include: [{
                     model: Ticket
                 }]
@@ -77,11 +80,11 @@ router.post(`/login` , isNotLoggedIn,(req, res, next) => {
 
 // 로그아웃
 router.post(`/logout`, isLoggedIn, (req, res, next) => {
-    req.logout()
-    req.session.destroy()
-    res.send(`로그아웃 되었습니다.`)
+    req.logout((err) => {
+        if (err) { return next(err); }
+    });
+    res.status(200).send(`로그아웃 되었습니다.`)
 })
-
 // 회원 가입
 router.post(`/`, isNotLoggedIn,async (req, res, next) => {
     try {
@@ -94,12 +97,13 @@ router.post(`/`, isNotLoggedIn,async (req, res, next) => {
             return res.status(403).send(`이미 생성되었습니다.`)
         }
         await User.create({
-            wallet_address: req.body.wallet_address
+            wallet_address: req.body.wallet_address,
+            password: `PASS`
         })
-        res.status(201).send(`로그인에 성공하였습니다.`)
+        res.status(201).send(`회원가입에 성공하였습니다.`)
     }
     catch(error){
-        console.error(err)
+        console.error(error)
         next(error)
     }
 
