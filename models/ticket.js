@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
         //     type: DataTypes.ARRAY(DataTypes.STRING(50)),
         //     allowNull: true
         // },
-        state: {
+        status: {
             type: DataTypes.ENUM({
             values: [`SALE`, `RESALE`, `NONE`]
                 }
@@ -29,6 +29,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         }
     }, {
+        modelName: 'Ticket',
+        tableName: 'tickets',
         charset: `utf8mb4`,
         collate: `utf8mb4_general_ci`
     });
