@@ -41,6 +41,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         }
     }, {
+        modelName: 'Performance',
+        tableName: `performances`,
         charset: `utf8mb4`,
         collate: `utf8mb4_general_ci`
     });
