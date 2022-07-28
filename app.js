@@ -7,7 +7,7 @@ const morgan = require(`morgan`)
 const path = require(`path`)
 const userRouter = require(`./routes/user`)
 const ticketRouter = require(`./routes/ticket`)
-const performanceRouter = require(`./routes/performance`)
+// const performanceRouter = require(`./routes/performance`)
 const db = require(`./models`)
 
 const passportConfigure = require(`./passport`)
@@ -16,7 +16,7 @@ const app = express()
 
 
 
-db.sequelize.sync()
+db.sequelize.sync({force: false})
     .then(() =>{
         console.log(`db 연결 성공`)
     })
@@ -44,9 +44,9 @@ app.use(passport.session())
 
 
 app.use(`/user`, userRouter)
-// app.use(`/ticket`, ticketRouter)
+app.use(`/ticket`, ticketRouter)
 // app.use(`/performance`, performanceRouter)
 
-app.listen(3066, () =>{
+app.listen(3065, () =>{
     console.log(`서버 실행 중..`)
 })
