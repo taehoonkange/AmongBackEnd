@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         nickname: {
             type: DataTypes.STRING(15)
         },
+
         description: {
             type: DataTypes.TEXT,
             allowNull: true
@@ -16,6 +17,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         }
     }, {
+        modelName: 'User',
+        tableName: 'users',
         charset: `utf8`,
         collate: `utf8_general_ci`
     });
