@@ -110,7 +110,7 @@ router.post(`/`, isNotLoggedIn,async (req, res, next) => {
 })
 
 // 유저 정보
-router.get(`/:id`, async (req, res, next) => {
+router.get(`/id/:id`, async (req, res, next) => {
     try {
         const user = await User.findOne({
             where: {
@@ -189,4 +189,21 @@ router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res, next
     console.log(req.file);
     res.json(req.file.filename)
 })
+
+//프로필 사진 가져오기
+router.get (`/image`, isLoggedIn, upload.none(), async (req, res, next) => {
+    try{
+        const profile_image = await User.findOne({
+            where: { id : req.user.id},
+            attributes: [ `img_src` ]
+        })
+        res.status(200).json(profile_image)
+    } catch (error){
+        console.error(error)
+        next(error)
+    }
+
+
+})
+
 module.exports = router
