@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false
         },
+        // 시간만 전달 하기
         term_start_at:{
             type: DataTypes.DATE,
             allowNull: false
@@ -23,15 +24,13 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         start_at:{
-            type: DataTypes.DATEONLY,
+            type: DataTypes.DATE,
             allowNull: false
         },
-
         end_at:{
-            type: DataTypes.DATEONLY,
+            type: DataTypes.DATE,
             allowNull: false
         },
-
         description: {
             type: DataTypes.TEXT,
             allowNull: true
@@ -48,6 +47,8 @@ module.exports = (sequelize, DataTypes) => {
     });
     Performance.associate = (db) => {
         db.Performance.hasMany(db.Seat)
+        db.Performance.hasMany(db.Ticket)
+        db.Performance.belongsTo(db.User)
     }
 
     return Performance;
