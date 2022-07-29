@@ -153,6 +153,21 @@ router.patch(`/profile/nickname` , isLoggedIn, async (req, res, next) => {
         next(err)
     }
 })
+
+//닉네임 가져오기
+
+router.get(`/profile/nickname` , isLoggedIn, async (req, res, next) => {
+    try {
+        const user = await User.findOne({
+            where: { id: req.user.id},
+            attributes: [ `nickname`]
+        });
+        res.status(200).json(user)
+    } catch(err){
+        console.error(err)
+        next(err)
+    }
+})
 //업로드 메소드
 const upload = multer({
     storage: multer.diskStorage({
