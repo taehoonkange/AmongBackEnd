@@ -6,8 +6,8 @@ const passport = require(`passport`)
 const morgan = require(`morgan`)
 const path = require(`path`)
 const userRouter = require(`./routes/user`)
-const ticketRouter = require(`./routes/ticket`)
-// const performanceRouter = require(`./routes/performance`)
+// const ticketRouter = require(`./routes/ticket`)
+const performanceRouter = require(`./routes/performance`)
 const db = require(`./models`)
 
 const passportConfigure = require(`./passport`)
@@ -44,7 +44,7 @@ app.use(passport.session())
 
 
 app.use(`/user`, userRouter)
-app.use(`/ticket`, ticketRouter)
+app.use(`/performance`, performanceRouter)
 // app.use(`/performance`, performanceRouter)
 
 app.listen(3065, () =>{
