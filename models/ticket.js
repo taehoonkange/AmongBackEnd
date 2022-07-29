@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
         img_src: {
             type: DataTypes.STRING(200),
             allowNull: true
+        },
+        number: {
+            type: DataTypes.STRING(7),
+            allowNull: true
         }
     }, {
         modelName: 'Ticket',
@@ -35,8 +39,8 @@ module.exports = (sequelize, DataTypes) => {
         collate: `utf8mb4_general_ci`
     });
     Ticket.associate = (db) => {
-        db.Ticket.hasMany(db.Seat)
         db.Ticket.belongsTo(db.User)
+        db.Ticket.belongsTo(db.Performance)
 
     }
 

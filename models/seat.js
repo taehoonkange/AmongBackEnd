@@ -20,7 +20,6 @@ module.exports = (sequelize, DataTypes) => {
         collate: `utf8mb4_general_ci`
     });
     Seat.associate = (db) => {
-        db.Seat.belongsTo(db.Ticket)
         db.Seat.belongsTo(db.Performance)
     }
 
