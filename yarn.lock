@@ -1320,6 +1320,18 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
+swagger-ui-dist@>=4.11.0:
+  version "4.13.0"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.13.0.tgz#0059e8412ece43eeef2fd98e00132c6a2d43b7b7"
+  integrity sha512-5yqhkUU9uV5oT/MTMBeSgDGI0Vx6eCOU43AszQBs88poI8OB1v+FoXEFHv+NaBbEfTkXCMWlAJrH6iWyDzLETQ==
+
+swagger-ui-express@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/swagger-ui-express/-/swagger-ui-express-4.5.0.tgz#feb1314627092eb9c7e6b65ee018927011445530"
+  integrity sha512-DHk3zFvsxrkcnurGvQlAcLuTDacAVN1JHKDgcba/gr2NFRE4HGwP1YeHIXMiGznkWR4AeS7X5vEblNn4QljuNA==
+  dependencies:
+    swagger-ui-dist ">=4.11.0"
+
 timers-ext@^0.1.7:
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/timers-ext/-/timers-ext-0.1.7.tgz#6f57ad8578e07a3fb9f91d9387d65647555e25c6"
