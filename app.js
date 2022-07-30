@@ -12,6 +12,9 @@ const db = require(`./models`)
 
 const passportConfigure = require(`./passport`)
 
+const swaggerUi = require('swagger-ui-express')
+const swaggerFile = require('./swagger-output')
+
 const app = express()
 
 
@@ -42,6 +45,7 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
+app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile)) //
 
 app.use(`/user`, userRouter)
 app.use(`/performance`, performanceRouter)

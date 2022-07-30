@@ -16,6 +16,9 @@ try {
 
 //로그인 상태 유지
 router.get( `/`, async(req, res, next) =>{
+    /* 	#swagger.tags = ['User']
+        #swagger.summary = `로그인 상태 유지`
+        #swagger.description = '로그인 상태 유지 로그인 필요' */
     try{
         if(req.user){
             const fullUserWithoutWalletAddress = await User.findOne({
@@ -37,6 +40,10 @@ router.get( `/`, async(req, res, next) =>{
 
 // 유저 티켓 조회
 router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
+    /* 	#swagger.tags = ['User']
+        #swagger.summary = `유저 티켓 조회`
+        #swagger.description = '유저 티켓 조회 로그인 필요' */
+
     try{
         const ticket = await Ticket.findAll({
             where: {UserId: req.user.id}
@@ -52,6 +59,13 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
 
 // 로그인
 router.post(`/login` , isNotLoggedIn,(req, res, next) => {
+    /* 	#swagger.tags = ['User']
+        #swagger.summary = `로그인`
+        #swagger.description = '로그인' */
+
+
+
+
     passport.authenticate(`local`, (err, user, info) => {
         if (err){
             console.error(err)
@@ -81,6 +95,9 @@ router.post(`/login` , isNotLoggedIn,(req, res, next) => {
 
 // 로그아웃
 router.post(`/logout`, isLoggedIn, (req, res, next) => {
+    /* 	#swagger.tags = ['User']
+        #swagger.summary = `로그아웃`
+        #swagger.description = '로그아웃 로그인 필요' */
     req.logout((err) => {
         if (err) { return next(err); }
     });
@@ -88,6 +105,16 @@ router.post(`/logout`, isLoggedIn, (req, res, next) => {
 })
 // 회원 가입
 router.post(`/`, isNotLoggedIn,async (req, res, next) => {
+    /* 	#swagger.tags = ['User']
+        #swagger.summary = `회원 가입`
+        #swagger.description = '회원 가입' */
+
+
+    /*	#swagger.parameters['wallet_address'] = {
+            in: 'query',
+            description: '지갑 주소'
+
+    } */
     try {
         const exUser = await User.findOne({
             where: {
@@ -111,6 +138,17 @@ router.post(`/`, isNotLoggedIn,async (req, res, next) => {
 
 // 유저 정보
 router.get(`/id/:id`, async (req, res, next) => {
+    /* 	#swagger.tags = ['User']
+        #swagger.summary = `유저 정보`
+        #swagger.description = '유저 정보' */
+
+
+    /*	#swagger.parameters['{id}'] = {
+            in: 'parameters',
+
+            description: '유저 정보 조회',
+
+    } */
     try {
         const user = await User.findOne({
             where: {
@@ -141,6 +179,16 @@ router.get(`/id/:id`, async (req, res, next) => {
 //닉네임 변경
 
 router.patch(`/profile/nickname` , isLoggedIn, async (req, res, next) => {
+    /* 	#swagger.tags = ['User']
+        #swagger.summary = `닉네임 변경`
+        #swagger.description = '닉네임 변경'  로그인 필요*/
+
+
+    /*	#swagger.parameters['nickname'] = {
+            in: 'body',
+            description: '원하는 닉네임 입력'
+
+    } */
     try {
         await User.update({
             nickname: req.body.nickname
@@ -157,6 +205,10 @@ router.patch(`/profile/nickname` , isLoggedIn, async (req, res, next) => {
 //닉네임 가져오기
 
 router.get(`/profile/nickname` , isLoggedIn, async (req, res, next) => {
+    /* 	#swagger.tags = ['User']
+        #swagger.summary = `닉네임 가져오기 `
+        #swagger.description = '닉네임 가져오기 로그인 필요' */
+
     try {
         const user = await User.findOne({
             where: { id: req.user.id},
@@ -185,6 +237,27 @@ const upload = multer({
 
 //프로필 사진 등록
 router.patch(`/profile/image` , isLoggedIn, upload.none(),async (req, res, next) => {
+    /* 	#swagger.tags = ['User']
+        #swagger.summary = `프로필 사진 등록`
+        #swagger.description = '프로필 사진 등록 로그인 필요' */
+
+    /* #swagger.responses[001] = {
+      description: '사진',
+      schema: {
+        $image: "example.png"
+      }
+     } */
+
+    /*	#swagger.parameters['image'] = {
+            in: 'body',
+            description: '프로필 사진'
+
+
+    } */
+
+
+
+
     try {
         const user = await User.findOne({
             where: { id: req.user.id}
@@ -201,12 +274,34 @@ router.patch(`/profile/image` , isLoggedIn, upload.none(),async (req, res, next)
 })
 //프로필 사진 저장
 router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res, next) => {
+    /* 	#swagger.tags = ['User']
+    #swagger.summary = `프로필 사진 저장`
+        #swagger.description = '프로필 사진 저장 로그인 필요' */
+
+    /*	#swagger.parameters['image'] = {
+            in: 'formData',
+            type: 'file',
+            description: '프로필 사진 주소'
+
+    } */
+
+    /* #swagger.responses[001] = {
+      description: '사진',
+      schema: {
+        $image: "example.png"
+      }
+     } */
+
     console.log(req.file);
     res.json(req.file.filename)
 })
 
 //프로필 사진 가져오기
 router.get (`/image`, isLoggedIn, upload.none(), async (req, res, next) => {
+    /* 	#swagger.tags = ['User']
+    #swagger.summary = `프로필 사진 가져오기`
+        #swagger.description = '프로필 사진 가져오기' */
+
     try{
         const profile_image = await User.findOne({
             where: { id : req.user.id},

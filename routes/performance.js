@@ -33,12 +33,18 @@ const upload = multer({
 
 //공연 사진 저장
 router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res, next) => {
+    /* 	#swagger.tags = ['Performance']
+    #swagger.summary = `공연 사진 저장`
+        #swagger.description = '공연 사진 저장' */
     console.log(req.file);
     res.json(req.file.filename)
 })
 
 //공연 정보 저장
 router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
+    /* 	#swagger.tags = ['Performance']
+    #swagger.summary = `공연 정보 저장`
+        #swagger.description = '공연 정보 저장' */
     try{
         // 공연 db 생성
         const performance = await Performance.create({
@@ -113,6 +119,9 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
 // 공연 상세 정보 보기
 
 router.get(`/id/:id`,  async (req, res, next) => {
+    /* 	#swagger.tags = ['Performance']
+    #swagger.summary = `공연 상세 정보 보기`
+        #swagger.description = '공연 상세 정보 보기' */
     try{
         const performance = await Performance.findOne({
             where: { id: req.params.id}
