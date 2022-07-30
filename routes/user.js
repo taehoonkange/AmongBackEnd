@@ -61,7 +61,16 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
 router.post(`/login` , isNotLoggedIn,(req, res, next) => {
     /* 	#swagger.tags = ['User']
         #swagger.summary = `로그인`
-        #swagger.description = '로그인' */
+        #swagger.description = '로그인'
+        /* #swagger.parameters['obj'] = {
+            in: 'body',
+            description: '로그인 예',
+            schema: {
+                $wallet_address: "a",
+                $nickname: "dd"
+            }
+
+        } */
 
 
 
