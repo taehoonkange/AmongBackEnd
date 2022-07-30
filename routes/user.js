@@ -241,8 +241,8 @@ const upload = multer({
         },
         filename(req, file, done){
             const ext = path.extname(file.originalname)
-            const decodedFileName =decodeURIComponent(file.originalname)
-            const basename = path.basename(decodedFileName, ext)
+            const decodedFile = decodeURIComponent(file.originalname)
+            const basename = path.basename(decodedFile, ext)
             done(null, basename + `_`+ new Date().getTime() + ext);
         }
     }),
