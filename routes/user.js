@@ -97,7 +97,11 @@ router.post(`/login` , isNotLoggedIn,(req, res, next) => {
 router.post(`/logout`, isLoggedIn, (req, res, next) => {
     /* 	#swagger.tags = ['User']
         #swagger.summary = `로그아웃`
-        #swagger.description = '로그아웃 로그인 필요' */
+        #swagger.description = '로그아웃 로그인 필요'
+
+
+
+        */
     req.logout((err) => {
         if (err) { return next(err); }
     });
@@ -228,7 +232,8 @@ const upload = multer({
         },
         filename(req, file, done){
             const ext = path.extname(file.originalname)
-            const basename = path.basename(file.originalname, ext)
+            const decodedFileName =decodeURIComponent(file.originalname)
+            const basename = path.basename(decodedFileName, ext)
             done(null, basename + `_`+ new Date().getTime() + ext);
         }
     }),
@@ -275,22 +280,15 @@ router.patch(`/profile/image` , isLoggedIn, upload.none(),async (req, res, next)
 //프로필 사진 저장
 router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res, next) => {
     /* 	#swagger.tags = ['User']
-    #swagger.summary = `프로필 사진 저장`
-        #swagger.description = '프로필 사진 저장 로그인 필요' */
-
-    /*	#swagger.parameters['image'] = {
+        #swagger.summary = `프로필 사진 저장`
+        #swagger.description = '프로필 사진 저장 로그인 필요'
+    	#swagger.parameters[`image`] = {
             in: 'formData',
             type: 'file',
             description: '프로필 사진 주소'
 
     } */
 
-    /* #swagger.responses[001] = {
-      description: '사진',
-      schema: {
-        $image: "example.png"
-      }
-     } */
 
     console.log(req.file);
     res.json(req.file.filename)
