@@ -48,6 +48,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile))
+
 app.use(`/user`, userRouter)
 app.use(`/performance`, performanceRouter)
 app.use(`/performances`, performancesRouter)
