@@ -7,6 +7,10 @@ const router = express.Router()
 // 티켓 상세 정보 보기
 
 router.get(`/:id`,  async (req, res, next) => {
+    /* 	#swagger.tags = ['Ticket']
+        #swagger.summary = `티켓 상세 정보 보기`
+        #swagger.description = '티켓 상세 정보 보기'
+        */
     try{
         const ticket = await Ticket.findOne({
             where: { id: req.params.id}

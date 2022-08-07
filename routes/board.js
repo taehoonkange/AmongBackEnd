@@ -6,6 +6,7 @@ const fs = require(`fs`)
 const { Board } = require(`../models`)
 
 const { isLoggedIn } = require(`./middlewares`)
+
 const router = express.Router()
 
 
@@ -36,7 +37,12 @@ const upload = multer({
 router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res, next) => {
     /* 	#swagger.tags = ['Board']
     #swagger.summary = `게시물 사진 저장`
-    #swagger.description = '게시물 사진 저장' */
+    #swagger.description = '게시물 사진 저장'
+    #swagger.parameters[`image`] = {
+        in: 'formData',
+        type: 'file',
+        description: '프로필 사진 주소'
+    }*/
     console.log(req.file);
     res.json(req.file.filename)
 })
@@ -74,7 +80,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
 
 // 게시물 제목만 조회
 
-router.get('/', isLoggedIn, async ( req, res, next) =>{
+router.get('/', async ( req, res, next) =>{
     /* 	#swagger.tags = ['Board']
         #swagger.summary = `게시물 제목만 조회`
         #swagger.description = '게시물 제목만 조히'
@@ -101,7 +107,7 @@ router.get('/', isLoggedIn, async ( req, res, next) =>{
 })
 // 게시물 상세 조회
 
-router.get('/{id}', isLoggedIn, async ( req, res, next) =>{
+router.get('/{id}', async ( req, res, next) =>{
     /* 	#swagger.tags = ['Board']
         #swagger.summary = `게시물 상세 조회`
         #swagger.description = '게시물 상세 조회'
@@ -114,6 +120,12 @@ router.get('/{id}', isLoggedIn, async ( req, res, next) =>{
         // 게시물 상세 조회
         const board = await Board.findOne({
                 where: { id: req.params.id }
+            }
+            ,{
+                include: [{
+                    model: Comment
+                }],
+
             }
         )
         if(board){
