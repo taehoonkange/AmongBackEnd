@@ -25,6 +25,8 @@ module.exports = (sequelize, DataTypes) => {
     User.associate = (db) => {
         db.User.hasMany(db.Ticket);
         db.User.hasMany(db.Performance);
+        db.User.hasMany(db.Comment);
+        db.User.hasMany(db.Board);
 
     }
 

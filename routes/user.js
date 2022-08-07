@@ -124,8 +124,11 @@ router.post(`/`, isNotLoggedIn,async (req, res, next) => {
 
 
     /*	#swagger.parameters['wallet_address'] = {
-            in: 'query',
-            description: '지갑 주소'
+            in: 'body',
+            description: '지갑 주소',
+            schema: {
+                $wallet_address: `input`
+            }
 
     } */
     try {
@@ -241,8 +244,7 @@ const upload = multer({
         },
         filename(req, file, done){
             const ext = path.extname(file.originalname)
-            const decodedFile = decodeURIComponent(file.originalname)
-            const basename = path.basename(decodedFile, ext)
+            const basename = path.basename(file.originalname, ext)
             done(null, basename + `_`+ new Date().getTime() + ext);
         }
     }),
@@ -278,6 +280,7 @@ router.patch(`/profile/image` , isLoggedIn, upload.none(),async (req, res, next)
         })
         await user.update({
             img_src: req.body.image
+
         })
         console.log(req.body)
         res.status(200).json(req.body.image)
@@ -290,7 +293,6 @@ router.patch(`/profile/image` , isLoggedIn, upload.none(),async (req, res, next)
 router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res, next) => {
     /* 	#swagger.tags = ['User']
         #swagger.summary = `프로필 사진 저장`
-        #swagger.description = '프로필 사진 저장 로그인 필요'
     	#swagger.parameters[`image`] = {
             in: 'formData',
             type: 'file',
@@ -298,7 +300,7 @@ router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res, next
 
     } */
 
-
+    res.ContentType = "application/json;charset=utf-8";
     console.log(req.file);
     res.json(req.file.filename)
 })
