@@ -15,9 +15,13 @@ const doc = {
             description: '공연 API',
         },
         {
+            name: 'Board',
+            description: '게시물 API',
+        },
+        {
             name: 'Ticket',
             description: '티켓 API',
-        },
+        }
 
     ],
     host: "localhost:3065",
