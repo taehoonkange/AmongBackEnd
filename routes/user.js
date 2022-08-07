@@ -62,11 +62,11 @@ router.post(`/login` , isNotLoggedIn,(req, res, next) => {
     /* 	#swagger.tags = ['User']
         #swagger.summary = `로그인`
         #swagger.description = '로그인'
-        /* #swagger.parameters['obj'] = {
+        #swagger.parameters['obj'] = {
             in: 'body',
             description: '로그인 예',
             schema: {
-                $wallet_address: "a",
+                $wallet_address: "input",
                 $nickname: "dd"
             }
 
@@ -156,10 +156,8 @@ router.post(`/`, isNotLoggedIn,async (req, res, next) => {
 router.get(`/id/:id`, async (req, res, next) => {
     /* 	#swagger.tags = ['User']
         #swagger.summary = `유저 정보`
-        #swagger.description = '유저 정보' */
-
-
-    /*	#swagger.parameters['{id}'] = {
+        #swagger.description = '유저 정보'
+        #swagger.parameters['{id}'] = {
             in: 'parameters',
 
             description: '유저 정보 조회',
@@ -197,10 +195,8 @@ router.get(`/id/:id`, async (req, res, next) => {
 router.patch(`/profile/nickname` , isLoggedIn, async (req, res, next) => {
     /* 	#swagger.tags = ['User']
         #swagger.summary = `닉네임 변경`
-        #swagger.description = '닉네임 변경'  로그인 필요*/
-
-
-    /*	#swagger.parameters['nickname'] = {
+        #swagger.description = '닉네임 변경'  로그인 필요
+        #swagger.parameters['nickname'] = {
             in: 'body',
             description: '원하는 닉네임 입력'
 
@@ -255,21 +251,14 @@ const upload = multer({
 router.patch(`/profile/image` , isLoggedIn, upload.none(),async (req, res, next) => {
     /* 	#swagger.tags = ['User']
         #swagger.summary = `프로필 사진 등록`
-        #swagger.description = '프로필 사진 등록 로그인 필요' */
-
-    /* #swagger.responses[001] = {
-      description: '사진',
-      schema: {
-        $image: "example.png"
-      }
-     } */
-
-    /*	#swagger.parameters['image'] = {
+        #swagger.description = '프로필 사진 등록 로그인 필요'
+        #swagger.parameters['image'] = {
             in: 'body',
-            description: '프로필 사진'
-
-
-    } */
+            description: '프로필 사진 예',
+            schema: {
+                $image: "example.png"
+            }
+        }*/
 
 
 
