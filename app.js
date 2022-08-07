@@ -8,6 +8,7 @@ const path = require(`path`)
 const userRouter = require(`./routes/user`)
 // const ticketRouter = require(`./routes/ticket`)
 const performanceRouter = require(`./routes/performance`)
+const performancesRouter = require(`./routes/performances`)
 const db = require(`./models`)
 
 const passportConfigure = require(`./passport`)
@@ -49,7 +50,7 @@ app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile)) //
 
 app.use(`/user`, userRouter)
 app.use(`/performance`, performanceRouter)
-// app.use(`/performance`, performanceRouter)
+app.use(`/performances`, performancesRouter)
 
 app.listen(3065, () =>{
     console.log(`서버 실행 중..`)

@@ -10,7 +10,7 @@ const router = express.Router()
 router.get(`/`,  async (req, res, next) => {
     /* 	#swagger.tags = ['Performances']
     #swagger.summary = `모든 공연 정보 보기`
-        #swagger.description = '모든 공연 정보 보기' */
+    #swagger.description = '모든 공연 정보 보기' */
     try{
         const performance = await Performance.findAll({
         })
