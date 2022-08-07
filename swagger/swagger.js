@@ -15,6 +15,10 @@ const doc = {
             description: '공연 API',
         },
         {
+            name: 'Performances',
+            description: '전체 공연 API',
+        },
+        {
             name: 'Ticket',
             description: '티켓 API',
         },
