@@ -44,8 +44,16 @@ router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res, next
 //공연 정보 저장
 router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
     /* 	#swagger.tags = ['Performance']
-    #swagger.summary = `공연 정보 저장`
-        #swagger.description = '공연 정보 저장' */
+        #swagger.summary = `공연 정보 저장`
+        #swagger.description = '공연 정보 저장'
+        #swagger.parameters['performance'] ={
+            in: `body`,
+            description: `공연 바디 정보`,
+            schema: { $ref: "#/definitions/Performance"}
+
+        }
+
+     */
     try{
         // 공연 db 생성
         const performance = await Performance.create({

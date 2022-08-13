@@ -121,12 +121,6 @@ router.get('/{id}', async ( req, res, next) =>{
         const board = await Board.findOne({
                 where: { id: req.params.id }
             }
-            ,{
-                include: [{
-                    model: Comment
-                }],
-
-            }
         )
         if(board){
             res.status(200).json(board)

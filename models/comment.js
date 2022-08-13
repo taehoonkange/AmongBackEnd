@@ -4,9 +4,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: false
         },
-        nickname: {
-            type: DataTypes.STRING(15),
-            allowNull: false
+        // 부모 댓글 idx
+        ref_comment: {
+            type: DataTypes.INTEGER,
+            allowNull: true
         },
 
     }, {
