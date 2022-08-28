@@ -137,6 +137,7 @@ router.post(`/`, isNotLoggedIn,async (req, res, next) => {
         })
         res.status(201).send(`회원가입에 성공하였습니다.`)
     }
+
     catch(error){
         console.error(error)
         next(error)
