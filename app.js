@@ -9,7 +9,7 @@ const userRouter = require(`./routes/user`)
 const ticketRouter = require(`./routes/ticket`)
 const performancesRouter = require(`./routes/performances`)
 const performanceRouter = require(`./routes/performance`)
-const boardRouter = require(`./routes/board`)
+const communityRouter = require(`./routes/community`)
 const db = require(`./models`)
 
 const passportConfigure = require(`./passport`)
@@ -53,7 +53,7 @@ app.use(`/user`, userRouter)
 app.use(`/performance`, performanceRouter)
 app.use(`/performances`, performancesRouter)
 app.use(`/ticket`, ticketRouter)
-app.use(`/board`, boardRouter)
+app.use(`/community`, communityRouter)
 
 app.listen(3065, () =>{
     console.log(`서버 실행 중..`)

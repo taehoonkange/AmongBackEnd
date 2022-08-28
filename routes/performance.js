@@ -33,7 +33,7 @@ const upload = multer({
 })
 
 //공연 사진 저장
-router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res, next) => {
+router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res) => {
     /* 	#swagger.tags = ['Performance']
     #swagger.summary = `공연 사진 저장`
         #swagger.description = '공연 사진 저장' */
@@ -65,7 +65,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             start_at: req.body.start_at,
             end_at: req.body.end_at,
             description: req.body.description,
-            img_src: req.body.image,
+            image: req.body.image,
             UserId: req.user.id
         })
 

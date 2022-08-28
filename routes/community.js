@@ -25,7 +25,7 @@ const upload = multer({
 //게시물 사진 저장
 
 router.post('/images', isLoggedIn, upload.array('image'), (req, res) => { // POST /post/images
-    /* 	#swagger.tags = ['Board']
+    /* 	#swagger.tags = ['Community']
     #swagger.summary = `게시물 사진 저장`
     #swagger.description = '게시물 사진 저장'
     #swagger.parameters[`image`] = {
@@ -40,6 +40,12 @@ router.post('/images', isLoggedIn, upload.array('image'), (req, res) => { // POS
 // 게시물 상세 조회
 router.get('/:postId', async (req, res, next) => {
     try {
+        //좋아요 갯수 세기
+        let like= 0
+        const ps = await Post.findOne()
+        ps.getLikes(ps.id).map((v)=> { like += 1});
+        console.log(`${like}`)
+
         const post = await Post.findOne({
             where: { id: req.params.postId },
             include: [{
@@ -58,6 +64,8 @@ router.get('/:postId', async (req, res, next) => {
                 model: User, // 좋아요 누른 사람
                 as: 'Likers',
                 attributes: ['id'],
+            }, {
+                like: `${like}`
             }],
         });
         res.status(200).json(post);
@@ -134,23 +142,22 @@ router.get('/posts', async (req, res, next) => { // GET /posts
                 model: Image,
             }, {
                 model: Comment,
+                as: `RefferedComment`,
                 include: [{
                     model: User,
                     attributes: ['id', 'nickname'],
-                }],
+                }]
+            }, {
+                model: Comment,
+                as: `RefferingComment`,
+                include: [{
+                    model: User,
+                    attributes: [`id`, `nickname`]
+                }]
             }, {
                 model: User, // 좋아요 누른 사람
                 as: 'Likers',
                 attributes: ['id'],
-            }, {
-                model: Post,
-                as: 'Retweet',
-                include: [{
-                    model: User,
-                    attributes: ['id', 'nickname'],
-                }, {
-                    model: Image,
-                }]
             }],
         });
         console.log(posts);
@@ -169,7 +176,6 @@ router.get('/post/:postId', async ( req, res, next) =>{
         #swagger.description = '게시물 상세 조회'
         #swagger.parameters[`id`] = {
             in: parameters,
-
         }
         */
     try {
@@ -378,6 +384,7 @@ router.post('/:postId/comment', isLoggedIn, async (req, res, next) => { // POST 
             content: req.body.content,
             PostId: parseInt(req.params.postId, 10),
             UserId: req.user.id,
+
         })
         const fullComment = await Refcomment.findOne({
             where: { id: comment.id },
@@ -397,7 +404,7 @@ router.post('/:postId/comment', isLoggedIn, async (req, res, next) => { // POST 
 router.patch('/:postId/like', isLoggedIn, async (req, res, next) => { // PATCH /post/1/like
     try {
         const post = await Post.findOne({ where: { id: req.params.postId }});
-        if (!post) {
+        if (!post)  {
             return res.status(403).send('게시글이 존재하지 않습니다.');
         }
         await post.addLikers(req.user.id);
@@ -485,8 +492,8 @@ router.patch(`/comment/:CommentId`, isLoggedIn, async (req, res, next) =>{
 
 router.patch(`/refcomment/:RefcommentId`, isLoggedIn, async (req, res, next) =>{
     try{
-        const comment = await Refcomment.update({
-            where : { id: parseInt(req.params.RefcommentId, 10) },
+        const comment = await Comment.update({
+            where : { Refs: parseInt(req.params.RefcommentId, 10) },
             content: req.body.content,
         })
 
@@ -509,9 +516,12 @@ router.patch(`/refcomment/:RefcommentId`, isLoggedIn, async (req, res, next) =>{
 router.delete(`/comment/:Commentid`, isLoggedIn, async(req, res, next) => {
     try{
         Comment.destroy({
-            where: {id: parseInt(req.params.Commentid, 10)}
+            where: {
+                [Op.or]:
+                    [{id: parseInt(req.params.Commentid, 10)},
+                        {Refs: parseInt(req.params.Commentid, 10)}]
+            }
         });
-
 
     }
     catch (e) {
@@ -523,12 +533,18 @@ router.delete(`/comment/:Commentid`, isLoggedIn, async(req, res, next) => {
 // 대댓글 삭제
 
 router.delete(`/refcomment/:Refcommentid`, isLoggedIn, async(req, res, next) => {
+    /* 	#swagger.tags = ['Community']
+    #swagger.summary = `대댓글 삭제`
+    #swagger.description = '대댓글 삭제'
+    #swagger.parameters[`image`] = {
+        in: 'params',
+        type: 'file',
+        description: '프로필 사진 주소'
+    }*/
     try{
-        Refcomment.destroy({
-            where: {id: parseInt(req.params.Refcommentid, 10)}
+        Comment.destroy({
+            Refs: parseInt(req.params.Refcommentid, 10)
         });
-
-
     }
     catch (e) {
         console.error(e);

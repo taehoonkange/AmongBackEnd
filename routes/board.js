@@ -81,11 +81,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
 // 게시물 제목만 조회
 
 router.get('/', async ( req, res, next) =>{
-    /* 	#swagger.tags = ['Board']
-        #swagger.summary = `게시물 제목만 조회`
-        #swagger.description = '게시물 제목만 조히'
 
-        */
     try {
         // 게시물 제목 조회
         const board = await Board.findOne({
@@ -108,14 +104,7 @@ router.get('/', async ( req, res, next) =>{
 // 게시물 상세 조회
 
 router.get('/{id}', async ( req, res, next) =>{
-    /* 	#swagger.tags = ['Board']
-        #swagger.summary = `게시물 상세 조회`
-        #swagger.description = '게시물 상세 조회'
-        #swagger.parameters[`id`] = {
-            in: parameters,
 
-        }
-        */
     try {
         // 게시물 상세 조회
         const board = await Board.findOne({

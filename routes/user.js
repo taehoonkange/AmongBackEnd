@@ -71,10 +71,6 @@ router.post(`/login` , isNotLoggedIn,(req, res, next) => {
             }
 
         } */
-
-
-
-
     passport.authenticate(`local`, (err, user, info) => {
         if (err){
             console.error(err)
@@ -107,22 +103,18 @@ router.post(`/logout`, isLoggedIn, (req, res, next) => {
     /* 	#swagger.tags = ['User']
         #swagger.summary = `로그아웃`
         #swagger.description = '로그아웃 로그인 필요'
-
-
-
         */
     req.logout((err) => {
         if (err) { return next(err); }
     });
     res.status(200).send(`로그아웃 되었습니다.`)
 })
+
 // 회원 가입
 router.post(`/`, isNotLoggedIn,async (req, res, next) => {
     /* 	#swagger.tags = ['User']
         #swagger.summary = `회원 가입`
         #swagger.description = '회원 가입' */
-
-
     /*	#swagger.parameters['wallet_address'] = {
             in: 'body',
             description: '지갑 주소',
@@ -260,17 +252,18 @@ router.patch(`/profile/image` , isLoggedIn, upload.none(),async (req, res, next)
             }
         }*/
 
-
-
-
     try {
         const user = await User.findOne({
             where: { id: req.user.id}
         })
-        await user.update({
-            img_src: req.body.image
 
-        })
+        if (req.body.image) {
+            { // 이미지를 하나만 올리면 image: 제로초.png
+                const image = await Image.create({ src: req.body.image });
+                await user.addImage(image);
+            }
+        }
+
         console.log(req.body)
         res.status(200).json(req.body.image)
     } catch(err){
@@ -279,7 +272,7 @@ router.patch(`/profile/image` , isLoggedIn, upload.none(),async (req, res, next)
     }
 })
 //프로필 사진 저장
-router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res, next) => {
+router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res) => {
     /* 	#swagger.tags = ['User']
         #swagger.summary = `프로필 사진 저장`
     	#swagger.parameters[`image`] = {
@@ -288,8 +281,6 @@ router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res, next
             description: '프로필 사진 주소'
 
     } */
-
-    res.ContentType = "application/json;charset=utf-8";
     console.log(req.file);
     res.json(req.file.filename)
 })
@@ -301,9 +292,9 @@ router.get (`/image`, isLoggedIn, upload.none(), async (req, res, next) => {
         #swagger.description = '프로필 사진 가져오기' */
 
     try{
-        const profile_image = await User.findOne({
-            where: { id : req.user.id},
-            attributes: [ `img_src` ]
+        const profile_image = await Image.findOne({
+            where: { Userid : req.user.id},
+            attributes: [ `src` ]
         })
         res.status(200).json(profile_image)
     } catch (error){

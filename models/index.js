@@ -10,7 +10,10 @@ db.User = require(`./user`)(sequelize,Sequelize)
 db.Seat = require(`./seat`)(sequelize,Sequelize)
 db.Ticket = require(`./ticket`)(sequelize,Sequelize)
 db.Comment = require(`./comment`)(sequelize,Sequelize)
-db.Board = require(`./board`)(sequelize,Sequelize)
+db.Refcomment = require(`models/refcomment`)(sequelize,Sequelize)
+db.Hashtag = require(`./hashtag`)(sequelize,Sequelize)
+db.Post = require(`./post`)(sequelize,Sequelize)
+db.Image = require(`./image`)(sequelize,Sequelize)
 
 
 Object.keys(db).forEach(modelName => {

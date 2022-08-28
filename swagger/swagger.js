@@ -19,12 +19,8 @@ const doc = {
             description: '모든 공연 API',
         },
         {
-            name: 'Board',
+            name: 'Community',
             description: '게시물 API',
-        },
-        {
-            name: 'Ticket',
-            description: '티켓 API',
         }
 
     ],
