@@ -44,6 +44,7 @@ module.exports = (sequelize, DataTypes) => {
     Performance.associate = (db) => {
         db.Performance.hasMany(db.Seat)
         db.Performance.hasMany(db.Ticket)
+        db.Performance.hasOne(db.Image)
         db.Performance.belongsTo(db.User)
     }
 

@@ -55,6 +55,9 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
 
      */
     try{
+        const image = Image.create({
+            src: req.body.image
+        })
         // 공연 db 생성
         const performance = await Performance.create({
             title: req.body.title,
@@ -65,9 +68,9 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             start_at: req.body.start_at,
             end_at: req.body.end_at,
             description: req.body.description,
-            image: req.body.image,
-            UserId: req.user.id
+            UserId: req.user.id,
         })
+        performance.addImage(image.id)
 
         let i = 1;
         let end = 0;
@@ -76,15 +79,15 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             let fixed_end = end + 1
             while(i !== fixed_end){
                 // 티켓 db 생성
-                Ticket.create({
+                const ticket = Ticket.create({
                     name: req.body.title,
                     description: req.body.description,
-                    img_src: req.body.image,
                     allow_resale: req.body.allow_resale,
                     UserId: req.user.id,
                     number: parseInt(`${i}`),
                     PerformanceId: performance.id
                 })
+                ticket.addImage(image.id)
                 i += 1;
             }
         }))

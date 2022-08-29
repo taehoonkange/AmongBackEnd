@@ -4,6 +4,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: false
         },
+        inherited: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
+
+        }
 
     }, {
         modelName: 'Comment',
@@ -14,7 +19,6 @@ module.exports = (sequelize, DataTypes) => {
     Comment.associate = (db) => {
         db.Comment.belongsTo(db.User)
         db.Comment.belongsTo(db.Post)
-        db.Comment.hasMany(db.Refcomment)
         db.Comment.belongsToMany(db.Comment, { through: `Ref`, as: `Refs`})
     }
 

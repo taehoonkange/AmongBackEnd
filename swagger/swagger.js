@@ -37,7 +37,12 @@ const doc = {
             end_at: "YYYY-MM-DD HH:MM:SS",
             description: "공연 상세 설명",
             infos: [{class: "좌석 등급", price: "좌석 가격", number: "좌석 갯수"},],
-            allow_resale: "true or false"
+            allow_resale: "true or false",
+            image: "이미지"
+        },
+        Post: {
+            content: "게시물 내용 입력",
+            image: ["이미지 주소 입력", "", ]
         }
     }
 };

@@ -3,10 +3,6 @@ module.exports = (sequelize, DataTypes) => {
         content: {
             type: DataTypes.TEXT,
             allowNull: false
-        },
-        img_src: {
-            type: DataTypes.STRING(200),
-            allowNull: true
         }
 
     }, {
@@ -19,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         db.Post.belongsTo(db.User)
         db.Post.hasMany(db.Comment)
         db.Post.hasMany(db.Image)
-        db.Post.belongsToMany(db.User, { through: 'Like', as: 'Likers' }) // post.addLikers, post.removeLikers
+        db.Post.belongsToMany(db.User, { through: 'Like', as: 'Likers' }) // post.addLikers, post.removeLikers, post.getLikers
         db.Post.belongsToMany(db.Hashtag, { through: 'PostHashtag' });
 
     }
