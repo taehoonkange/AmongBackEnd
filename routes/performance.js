@@ -3,7 +3,7 @@ const multer = require(`multer`)
 const path = require(`path`)
 const fs = require(`fs`)
 
-const { Performance, Ticket, Seat } = require(`../models`)
+const { Performance, Ticket, Seat, Image } = require(`../models`)
 
 const { isLoggedIn } = require(`./middlewares`)
 const router = express.Router()
@@ -69,25 +69,27 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             end_at: req.body.end_at,
             description: req.body.description,
             UserId: req.user.id,
+            ImageId: image.id
         })
-        performance.addImage(image.id)
+
 
         let i = 1;
         let end = 0;
-        const tickets = await Promise.all(req.body.infos.map(info=>{
+        await Promise.all(req.body.infos.map(info=>{
             end += parseInt(info.number);
             let fixed_end = end + 1
             while(i !== fixed_end){
                 // 티켓 db 생성
-                const ticket = Ticket.create({
+                Ticket.create({
                     name: req.body.title,
                     description: req.body.description,
                     allow_resale: req.body.allow_resale,
                     UserId: req.user.id,
                     number: parseInt(`${i}`),
-                    PerformanceId: performance.id
+                    PerformanceId: performance.id,
+                    imageId: image.id
                 })
-                ticket.addImage(image.id)
+
                 i += 1;
             }
         }))
@@ -98,11 +100,11 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             where: { allow_resale: true}
         })
 
-        await performance.addTickets(tickets);
+        // await performance.addTickets(tickets);
 
         i = 1;
         end = 0;
-        const seats = await Promise.all(req.body.infos.map(info=>{
+        await Promise.all(req.body.infos.map(info=>{
             end += parseInt(info.number);
             let fixed_end = end + 1
             while(i !== fixed_end){
@@ -120,9 +122,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
         }))
 
 
-        await performance.addSeats(seats);
-
-        res.status(200).json(performance)
+        res.status(200).send("공연 정보 생성이 완료 되었습니다.")
     } catch(err){
         console.error(err)
         next(err)

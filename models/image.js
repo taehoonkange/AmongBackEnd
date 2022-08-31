@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) =>  {
             // id가 기본적으로 들어있다.
             src: {
                 type: DataTypes.STRING(200),
-                allowNull: false,
+                allowNull: true,
             },
         }, {
             modelName: 'Image',
@@ -14,10 +14,10 @@ module.exports = (sequelize, DataTypes) =>  {
         });
 
     Image.associate = (db) => {
-        db.Image.belongsTo(db.Post);
-        db.Image.belongsTo(db.User);
-        db.Image.belongsTo(db.Ticket);
-        db.Image.belongsTo(db.Performance);
+        db.Image.hasOne(db.Post);
+        db.Image.hasOne(db.User);
+        db.Image.hasOne(db.Ticket);
+        db.Image.hasOne(db.Performance);
     }
 
     return Image;

@@ -37,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
     Ticket.associate = (db) => {
         db.Ticket.belongsTo(db.User)
         db.Ticket.belongsTo(db.Performance)
+        db.Ticket.belongsTo(db.Image)
 
     }
 
