@@ -26,6 +26,6 @@
   },
   "scripts": {
     "dev": "nodemon app",
-    "swagger": "NODE_ENV=test node swagger/swagger.js"
+    "swagger": "node swagger/swagger.js"
   }
 }

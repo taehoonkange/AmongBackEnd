@@ -133,35 +133,41 @@ router.get('/post/:postId', async (req, res, next) =>{
 
         const post = await Post.findOne({
             where: { id: req.params.postId},
+            order: [[Comment,'createdAt', 'DESC'],
+            ],
             include: [{
                 model: User,
                 attributes: ['id', 'nickname'],
             }, {
                 model: Image,
-            }, {
-                model: Comment,
-                where: { inherited: false },
-                include: [{
-                    model: User,
-                    attributes: ['id', 'nickname'],
-                    order: [['createdAt', 'DESC']],
-                }, {
-                    model: Comment,
-                    as: `Refs`,
-                    include: [{
-                        model: User,
-                        attributes: ['id', 'nickname'],
-                        order: [['createdAt', 'DESC']],
-                    }]
-                }],
-            }, {
+                attributes: ['id', 'src'],
+            },  {
                 model: User, // 좋아요 누른 사람
                 as: 'Likers',
                 attributes: ['id'],
+            },{
+                model: Comment,
+                attributes: ['id', 'content'],
+                include: [{
+                    model: User,
+                    attributes: ['id', 'nickname'],
+                    include: [
+                        {
+                            model: Image,
+                            attributes: ['id', 'src'],
+                        }
+                    ],
+                }, {
+                    model: Comment,
+                    include: [{
+                        model: User,
+                        attributes: ['id', 'nickname']
+                    }]
+                }],
             },
             ],
         });
-        res.status(200).json({post,"like_count": post.Likers.length});
+        res.status(200).json({post});
     } catch (error) {
         console.error(error);
         next(error);
@@ -200,8 +206,6 @@ router.get('/posts/:lastId', async (req, res, next) => { // GET /
                 },
                     {
                         model: Comment,
-                        through: `Ref`,
-                        as: `Refs`,
                         include: [{
                             model: User,
                             attributes: [`id`, `nickname`]
@@ -344,7 +348,7 @@ router.post('/:postId/comment', isLoggedIn, async (req, res, next) => { // POST 
 });
 
 // 대댓글 생성
-router.post('/:refId/:postId/comment', isLoggedIn, async (req, res, next) => { // POST /post/1/comment
+router.post('/:refId/comment', isLoggedIn, async (req, res, next) => { // POST /post/1/comment
     /* 	#swagger.tags = ['Community']
        #swagger.summary = `대댓글 생성`
        #swagger.description = '대댓글 생성'
@@ -357,38 +361,16 @@ router.post('/:refId/:postId/comment', isLoggedIn, async (req, res, next) => { /
        }
        */
     try {
-        const post = await Post.findOne({
-            where: { id: req.params.postId },
-        });
-        if (!post) {
-            return res.status(403).send('존재하지 않는 게시글입니다.');
-        }
         const ref_comment = await Comment.create({
             content: req.body.content,
-            PostId: parseInt(req.params.postId, 10),
             UserId: req.user.id,
-            inherited: true
+            CommentId: req.params.refId
         })
 
-        const com = await Comment.findOne({
-            where: {id: req.params.refId}
+        const FullRefComment = await Comment.findOne({
+            where : { id: ref_comment.id}
         })
-        com.addRefs(ref_comment.id)
-    //     const comment = await Comment.findOne({
-    //         where: { id : req.params.refId},
-    //         include: [{
-    //             model: Comment,
-    //             through: `Ref`,
-    //             as: `Refs`,
-    //             include: [{
-    //                 model: User,
-    //                 attributes: ['id', 'nickname'],
-    //             }]
-    //
-    //         }]
-    //
-    // })
-        res.status(201).json(com);
+        res.status(201).json(FullRefComment);
     } catch (error) {
         console.error(error);
         next(error);
