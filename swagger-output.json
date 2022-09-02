@@ -610,7 +610,7 @@
         }
       }
     },
-    "/community/{refId}/comment": {
+    "/community/{refId}/{PostId}/refcomment": {
       "post": {
         "tags": [
           "Community"
@@ -620,6 +620,12 @@
         "parameters": [
           {
             "name": "refId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "PostId",
             "in": "path",
             "required": true,
             "type": "string"

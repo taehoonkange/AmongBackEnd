@@ -141,10 +141,6 @@ router.get('/post/:postId', async (req, res, next) =>{
             }, {
                 model: Image,
                 attributes: ['id', 'src'],
-            },  {
-                model: User, // 좋아요 누른 사람
-                as: 'Likers',
-                attributes: ['id'],
             },{
                 model: Comment,
                 attributes: ['id', 'content'],
@@ -159,15 +155,21 @@ router.get('/post/:postId', async (req, res, next) =>{
                     ],
                 }, {
                     model: Comment,
+                    through: `Ref`,
+                    as: `Refs`,
+                    attributes: [`id`, `content`],
                     include: [{
                         model: User,
                         attributes: ['id', 'nickname']
-                    }]
-                }],
-            },
+                    }]}],},
+                {
+                    model: User, // 좋아요 누른 사람
+                    as: 'Likers',
+                    attributes: ['id'],
+                },
             ],
         });
-        res.status(200).json({post});
+        res.status(200).json({post, "likeCount": post.Likers.length});
     } catch (error) {
         console.error(error);
         next(error);
@@ -193,24 +195,41 @@ router.get('/posts/:lastId', async (req, res, next) => { // GET /
                 ['createdAt', 'DESC'],
                 [Comment, 'createdAt', 'DESC'],
             ],
+            attributes: {
+                exclude: [`UserId`]
+            },
             include: [{
                 model: User,
                 attributes: ['id', 'nickname'],
             }, {
                 model: Image,
+                attributes: [`id`, `src`]
             }, {
                 model: Comment,
+                attributes: ['id', 'content'],
                 include: [{
                     model: User,
                     attributes: ['id', 'nickname'],
-                },
-                    {
-                        model: Comment,
-                        include: [{
+                    include: [
+                        {
+                            model: Image,
+                            attributes: ['id', 'src'],
+                        }
+                    ],
+                }, {
+                    model: Comment,
+                    through: `Ref`,
+                    as: `Refs`,
+                    attributes: [`id`, `content`],
+                    include: [
+                        {
                             model: User,
-                            attributes: [`id`, `nickname`]
-                        }]
-                    }]
+                            attributes: ['id', 'nickname']
+                        }
+                        ]
+                }
+                ],
+
             }, {
                 model: User, // 좋아요 누른 사람
                 as: 'Likers',
@@ -348,7 +367,7 @@ router.post('/:postId/comment', isLoggedIn, async (req, res, next) => { // POST 
 });
 
 // 대댓글 생성
-router.post('/:refId/comment', isLoggedIn, async (req, res, next) => { // POST /post/1/comment
+router.post('/:refId/:PostId/refcomment', isLoggedIn, async (req, res, next) => { // POST /post/1/comment
     /* 	#swagger.tags = ['Community']
        #swagger.summary = `대댓글 생성`
        #swagger.description = '대댓글 생성'
@@ -361,12 +380,16 @@ router.post('/:refId/comment', isLoggedIn, async (req, res, next) => { // POST /
        }
        */
     try {
+        const comment = await Comment.findOne({
+            where : { id: req.params.refId}
+        })
         const ref_comment = await Comment.create({
             content: req.body.content,
-            UserId: req.user.id,
-            CommentId: req.params.refId
-        })
+            CommentId: parseInt(req.params.refId, 10),
+            UserId: req.user.id
 
+        })
+        await comment.addRefs(ref_comment.id)
         const FullRefComment = await Comment.findOne({
             where : { id: ref_comment.id}
         })
