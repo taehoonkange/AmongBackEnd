@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
         db.User.hasMany(db.Comment);
         db.User.hasMany(db.Post);
         db.User.belongsToMany(db.Post, { through: 'Like', as: 'Liked' })
-        db.User.belongsTo(db.Image)
+        db.User.hasOne(db.Image)
     }
 
     return User;

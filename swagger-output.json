@@ -1,0 +1,887 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "AMONG API",
+    "description": "Description",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3065",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "User",
+      "description": "유저 API"
+    },
+    {
+      "name": "Performance",
+      "description": "공연 API"
+    },
+    {
+      "name": "Performances",
+      "description": "모든 공연 API"
+    },
+    {
+      "name": "Community",
+      "description": "게시물 API"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/user/": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "로그인 상태 유지",
+        "description": "로그인 상태 유지 로그인 필요",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "회원 가입",
+        "description": "회원 가입",
+        "parameters": [
+          {
+            "name": "wallet_address",
+            "in": "body",
+            "description": "지갑 주소",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "wallet_address": {
+                  "type": "string",
+                  "example": "input"
+                }
+              },
+              "required": [
+                "wallet_address"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/user/ticket": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "유저 티켓 조회",
+        "description": "유저 티켓 조회 로그인 필요",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/user/login": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "로그인",
+        "description": "로그인",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "로그인 예",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "wallet_address": {
+                  "type": "string",
+                  "example": "input"
+                },
+                "nickname": {
+                  "type": "string",
+                  "example": "dd"
+                }
+              },
+              "required": [
+                "wallet_address",
+                "nickname"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/user/logout": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "로그아웃",
+        "description": "로그아웃 로그인 필요",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/user/id/{id}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "유저 정보",
+        "description": "유저 정보",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/user/profile/nickname": {
+      "patch": {
+        "tags": [
+          "User"
+        ],
+        "summary": "닉네임 변경",
+        "description": "닉네임 변경",
+        "parameters": [
+          {
+            "name": "nickname",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nickname": {
+                  "example": "any"
+                }
+              }
+            },
+            "description": "원하는 닉네임 입력"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "닉네임 가져오기 ",
+        "description": "닉네임 가져오기 로그인 필요",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/user/profile/image": {
+      "patch": {
+        "tags": [
+          "User"
+        ],
+        "summary": "프로필 사진 등록",
+        "description": "프로필 사진 등록 로그인 필요",
+        "parameters": [
+          {
+            "name": "image",
+            "in": "body",
+            "description": "프로필 사진 예",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "image": {
+                  "type": "string",
+                  "example": "example.png"
+                }
+              },
+              "required": [
+                "image"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/user/image": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "프로필 사진 저장",
+        "description": "",
+        "parameters": [
+          {
+            "name": "image",
+            "in": "formData",
+            "type": "file",
+            "description": "프로필 사진 주소"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "프로필 사진 가져오기",
+        "description": "프로필 사진 가져오기",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/performance/image": {
+      "post": {
+        "tags": [
+          "Performance"
+        ],
+        "summary": "공연 사진 저장",
+        "description": "공연 사진 저장",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/performance/": {
+      "post": {
+        "tags": [
+          "Performance"
+        ],
+        "summary": "공연 정보 저장",
+        "description": "공연 정보 저장",
+        "parameters": [
+          {
+            "name": "performance",
+            "in": "body",
+            "description": "공연 바디 정보",
+            "schema": {
+              "$ref": "#/definitions/Performance"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/performance/id/{id}": {
+      "get": {
+        "tags": [
+          "Performance"
+        ],
+        "summary": "공연 상세 정보 보기",
+        "description": "공연 상세 정보 보기",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/performances/": {
+      "get": {
+        "tags": [
+          "Performances"
+        ],
+        "summary": "모든 공연 정보 보기",
+        "description": "모든 공연 정보 보기",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/ticket/{id}": {
+      "get": {
+        "tags": [
+          "Ticket"
+        ],
+        "summary": "티켓 상세 정보 보기",
+        "description": "티켓 상세 정보 보기",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/community/images": {
+      "post": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "게시물 사진 저장",
+        "description": "게시물 사진 저장",
+        "parameters": [
+          {
+            "name": "image",
+            "in": "formData",
+            "type": "file",
+            "description": "프로필 사진 주소"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/community/post": {
+      "post": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "게시물 생성",
+        "description": "게시물 생성",
+        "parameters": [
+          {
+            "name": "Post",
+            "in": "body",
+            "description": "게시물 생성",
+            "schema": {
+              "$ref": "#/definitions/Post"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/community/post/{postId}": {
+      "get": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "게시물 상세 조회",
+        "description": "게시물 상세 조회",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/community/posts/{lastId}": {
+      "get": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "게시물 조회",
+        "description": "게시물 조회",
+        "parameters": [
+          {
+            "name": "lastId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/community/post/{Postid}": {
+      "patch": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "게시물 수정",
+        "description": "게시물 수정",
+        "parameters": [
+          {
+            "name": "Postid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "post",
+            "in": "body",
+            "description": "게시물 예",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "example": "제목 입력"
+                },
+                "content": {
+                  "type": "string",
+                  "example": "내용 입력"
+                },
+                "image": {
+                  "type": "string",
+                  "example": "example.png"
+                }
+              },
+              "required": [
+                "title",
+                "content",
+                "image"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/community/{postId}": {
+      "delete": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "게시물 삭제",
+        "description": "게시물 삭제",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/community/{postId}/comment": {
+      "post": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "댓글 생성",
+        "description": "댓글 생성",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "content": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/community/{refId}/{PostId}/refcomment": {
+      "post": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "대댓글 생성",
+        "description": "대댓글 생성",
+        "parameters": [
+          {
+            "name": "refId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "PostId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "content": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/community/{postId}/like": {
+      "patch": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "좋아요",
+        "description": "좋아요",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "좋아요 삭제",
+        "description": "좋아요 삭제",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/community/comment/{CommentId}": {
+      "patch": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "댓글 수정",
+        "description": "댓글 수정",
+        "parameters": [
+          {
+            "name": "CommentId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "content": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/community/comment/{Commentid}": {
+      "delete": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "댓글 삭제",
+        "description": "댓글 삭제",
+        "parameters": [
+          {
+            "name": "Commentid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/community/refcomment/{Refcommentid}": {
+      "delete": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "대댓글 삭제",
+        "description": "대댓글 삭제",
+        "parameters": [
+          {
+            "name": "Refcommentid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Performance": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "example": "공연 제목 입력"
+        },
+        "place": {
+          "type": "string",
+          "example": "공연 장소 입력"
+        },
+        "time": {
+          "type": "string",
+          "example": "공연 시간"
+        },
+        "term_start_at": {
+          "type": "string",
+          "example": "YYYY-MM-DD HH:MM:SS"
+        },
+        "term_end_at": {
+          "type": "string",
+          "example": "YYYY-MM-DD HH:MM:SS"
+        },
+        "start_at": {
+          "type": "string",
+          "example": "YYYY-MM-DD HH:MM:SS"
+        },
+        "end_at": {
+          "type": "string",
+          "example": "YYYY-MM-DD HH:MM:SS"
+        },
+        "description": {
+          "type": "string",
+          "example": "공연 상세 설명"
+        },
+        "infos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "class": {
+                "type": "string",
+                "example": "좌석 등급"
+              },
+              "price": {
+                "type": "string",
+                "example": "좌석 가격"
+              },
+              "number": {
+                "type": "string",
+                "example": "좌석 갯수"
+              }
+            }
+          }
+        },
+        "allow_resale": {
+          "type": "string",
+          "example": "true or false"
+        },
+        "image": {
+          "type": "string",
+          "example": "이미지"
+        }
+      }
+    },
+    "Post": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "example": "게시물 내용 입력"
+        },
+        "image": {
+          "type": "array",
+          "example": [
+            "이미지 주소 입력",
+            ""
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

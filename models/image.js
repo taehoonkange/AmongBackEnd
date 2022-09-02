@@ -14,10 +14,10 @@ module.exports = (sequelize, DataTypes) =>  {
         });
 
     Image.associate = (db) => {
-        db.Image.hasOne(db.Post);
-        db.Image.hasOne(db.User);
-        db.Image.hasOne(db.Ticket);
-        db.Image.hasOne(db.Performance);
+        db.Image.belongsTo(db.Post);
+        db.Image.belongsTo(db.User);
+        db.Image.belongsTo(db.Ticket);
+        db.Image.belongsTo(db.Performance);
     }
 
     return Image;
