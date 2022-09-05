@@ -447,8 +447,8 @@ router.post('/:refId/:PostId/refcomment', isLoggedIn, async (req, res, next) => 
             content: req.body.content,
             UserId: req.user.id
         })
-        
-        await comment = await comment.addRefs(comment.id)
+
+        await comment.addRefs(comment.id)
         const FullRefComment = await Comment.findOne({
             where : { id: ref_comment.id}
         })
