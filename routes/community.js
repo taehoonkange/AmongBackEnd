@@ -237,12 +237,12 @@ router.get('/posts/:lastId', async (req, res, next) => { // GET /
             }],
         })
         const FullPosts = posts.map( post => {
-            return {post, "like_count": post.Likers.length}
+            return {post, "likeCount": post.Likers.length}
         })
         res.status(200).json(FullPosts);
     } catch (error) {
         console.error(error);
-        next(error);
+        next(error);xw
     }
 });
 
