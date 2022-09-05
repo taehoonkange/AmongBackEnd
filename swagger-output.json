@@ -23,6 +23,10 @@
     {
       "name": "Community",
       "description": "게시물 API"
+    },
+    {
+      "name": "Register",
+      "description": "등록 API"
     }
   ],
   "schemes": [
@@ -397,6 +401,31 @@
         }
       }
     },
+    "/community/{userId}/existence": {
+      "get": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "커뮤니티 존재",
+        "description": "커뮤니티 존재",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
     "/community/images": {
       "post": {
         "tags": [
@@ -422,7 +451,7 @@
         }
       }
     },
-    "/community/post": {
+    "/community/{communityId}/post": {
       "post": {
         "tags": [
           "Community"
@@ -430,6 +459,12 @@
         "summary": "게시물 생성",
         "description": "게시물 생성",
         "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
           {
             "name": "Post",
             "in": "body",
@@ -449,7 +484,7 @@
         }
       }
     },
-    "/community/post/{postId}": {
+    "/community/{postId}/post": {
       "get": {
         "tags": [
           "Community"
@@ -471,14 +506,26 @@
         }
       }
     },
-    "/community/posts/{lastId}": {
+    "/community/{communityId}/{communityClass}/{lastId}/posts": {
       "get": {
         "tags": [
           "Community"
         ],
-        "summary": "게시물 조회",
-        "description": "게시물 조회",
+        "summary": "임시 게시물 조회",
+        "description": "임시 게시물 조회",
         "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "communityClass",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
           {
             "name": "lastId",
             "in": "path",
@@ -787,6 +834,24 @@
             "type": "string"
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/register/": {
+      "patch": {
+        "tags": [
+          "Register"
+        ],
+        "summary": "인플루언서로 변경",
+        "description": "인플루언서로 변경",
+        "parameters": [],
         "responses": {
           "200": {
             "description": "OK"

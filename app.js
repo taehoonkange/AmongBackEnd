@@ -10,6 +10,8 @@ const ticketRouter = require(`./routes/ticket`)
 const performancesRouter = require(`./routes/performances`)
 const performanceRouter = require(`./routes/performance`)
 const communityRouter = require(`./routes/community`)
+const registerRouter = require(`./routes/register`)
+
 const db = require(`./models`)
 
 const passportConfigure = require(`./passport`)
@@ -21,7 +23,7 @@ const app = express()
 
 
 
-db.sequelize.sync({force: false})
+db.sequelize.sync({force: true})
     .then(() =>{
         console.log(`db 연결 성공`)
     })
@@ -54,6 +56,7 @@ app.use(`/performance`, performanceRouter)
 app.use(`/performances`, performancesRouter)
 app.use(`/ticket`, ticketRouter)
 app.use(`/community`, communityRouter)
+app.use(`/register`, registerRouter)
 
 app.listen(3065, () =>{
     console.log(`서버 실행 중..`)
