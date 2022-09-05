@@ -255,7 +255,6 @@ router.patch(`/post/:Postid`, isLoggedIn, upload.none(), async (req, res, next) 
             in: 'body',
             description: '게시물 예',
             schema: {
-                $title: "제목 입력",
                 $content: "내용 입력",
                 $image: "example.png"
             }
@@ -263,10 +262,12 @@ router.patch(`/post/:Postid`, isLoggedIn, upload.none(), async (req, res, next) 
         */
     try {
         const hashtags = req.body.content.match(/#[^\s#]+/g);
-        const post = await Post.update({
-            where: { id: parseInt(req.params.Postid, 10)},
+        await Post.update({
             content: req.body.content
-        });
+        }, {where: { id: parseInt(req.params.Postid, 10)}});
+        const post = await Post.findOne({
+            where: { id: parseInt(req.params.Postid, 10)}
+        })
         if (hashtags) {
             const result = await Promise.all(hashtags.map((tag) => Hashtag.findOrCreate({
                 where: { name: tag.slice(1).toLowerCase() },
