@@ -1,6 +1,6 @@
 const express = require(`express`)
 const { Op } = require(`sequelize`)
-const { Comment, User, Post, Image } = require(`../models`)
+const { Comment, User, Post, Image, Community, Communityclass  } = require(`../models`)
 const multer = require(`multer`)
 const path = require(`path`)
 const fs = require(`fs`)
@@ -32,6 +32,36 @@ const upload = multer({
     limit: { fileSize: 20 * 1024 * 1024 }
 })
 
+//커뮤니티 존재
+router.get(`/:userId/existence`, async ( req, res, next) => {
+    /* 	#swagger.tags = ['Community']
+    #swagger.summary = `커뮤니티 존재`
+    #swagger.description = '커뮤니티 존재'
+    */
+    try{
+        const community = await Community.findOne({
+            where : { head : req.params.userId}
+        })
+        console.log(community.toJSON())
+        if(community){
+            res.status(200).send("커뮤니티가 존재합니다.")
+        }
+        else{
+            res.status(400).send("커뮤니티가 존재하지 않습니다.")
+        }
+
+    }
+    catch (e) {
+        console.error(e)
+        next(e)
+    }
+})
+
+/* 커뮤니티 등급 부분 추가
+팔로우로 등급 생성
+팔로우 취소로 등급 삭제
+티켓 갯수로 등급 수정하기
+*/
 //게시물 사진 저장
 
 router.post('/images', isLoggedIn, upload.array('image'), (req, res) => { // POST /post/images
@@ -46,9 +76,10 @@ router.post('/images', isLoggedIn, upload.array('image'), (req, res) => { // POS
     console.log(req.files);
     res.json(req.files.map((v) => v.filename));
 });
+
 //게시물 생성
 
-router.post('/post', isLoggedIn, upload.none(), async (req, res, next) => { // POST /post
+router.post('/:communityId/post', isLoggedIn, upload.none(), async (req, res, next) => { // POST /post
     /* 	#swagger.tags = ['Community']
     #swagger.summary = `게시물 생성`
     #swagger.description = '게시물 생성'
@@ -59,11 +90,31 @@ router.post('/post', isLoggedIn, upload.none(), async (req, res, next) => { // P
 
     }*/
     try {
+        // 등급 확인
+        const communityclass = await Communityclass.findOne({
+            where : { communityId: req.params.communityId,
+                UserId: req.user.id
+            }
+        })
+
+        if (!communityclass){
+            await Communityclass.create({
+                UserId: req.user.id,
+                CommunityId: req.params.communityId
+            })
+        }
+        const newcommunityclass = await Communityclass.findOne({
+            where : { communityId: req.params.communityId,
+                UserId: req.user.id
+            }
+        })
         const hashtags = req.body.content.match(/#[^\s#]+/g);
         const post = await Post.create({
             content: req.body.content,
             UserId: req.user.id,
+            CommunityId: req.params.communityId
         });
+        post.addClasses(newcommunityclass.id)
         if (hashtags) {
             const result = await Promise.all(hashtags.map((tag) => Hashtag.findOrCreate({
                 where: { name: tag.slice(1).toLowerCase() },
@@ -79,27 +130,22 @@ router.post('/post', isLoggedIn, upload.none(), async (req, res, next) => { // P
                 await post.addImages(image);
             }
         }
-        const fullPost =
-            (req.body.image?
-                await Post.findOne({
-                    where: { id: post.id },
-                    include: [
-                        {
-                            model: Image,
-                        },
-                        {
-                            model: User, // 게시글 작성자
-                            attributes: ['id', 'nickname'],
-                        }]
-                }):
-                await Post.findOne({
-                    where: { id: post.id },
-                    include: [
-                        {
-                            model: User, // 게시글 작성자
-                            attributes: ['id', 'nickname'],
-                        }]
-                }))
+        const fullPost = await Post.findOne({
+            where: { id: post.id },
+            include: [
+                {
+                    model: Image,
+                },
+                {
+                    model: Communityclass,
+                    as: `Classes`,
+                    attributes: [`UserId`, `Class`]
+                },
+                {
+                    model: User, // 게시글 작성자
+                    attributes: ['id', 'nickname'],
+                }]
+        })
 
         res.status(201).json(fullPost);
     } catch (error) {
@@ -109,7 +155,7 @@ router.post('/post', isLoggedIn, upload.none(), async (req, res, next) => { // P
 });
 
 // 게시물 상세 조회
-router.get('/post/:postId', async (req, res, next) =>{
+router.get('/:postId/post', async (req, res, next) =>{
     /* 	#swagger.tags = ['Community']
     #swagger.summary = `게시물 상세 조회`
     #swagger.description = '게시물 상세 조회'
@@ -117,19 +163,6 @@ router.get('/post/:postId', async (req, res, next) =>{
 
     try {
         //좋아요 갯수 세기
-        // let like_count= 0
-        // const liked_post = await Post.findOne({
-        //     where: {id : req.params.postId}
-        // })
-        // const liked = await liked_post.getLikers()
-        // // map을 사용하기위해 string -> json 파일로 전환
-        // const jsonData = JSON.stringify(liked)
-        // const likes = JSON.parse(jsonData)
-        // console.log(likes)
-        // likes.map( like => {
-        //     like_count += 1
-        // })
-
 
         const post = await Post.findOne({
             where: { id: req.params.postId},
@@ -139,6 +172,10 @@ router.get('/post/:postId', async (req, res, next) =>{
                 model: User,
                 attributes: ['id', 'nickname'],
             }, {
+                model: Communityclass,
+                as: `Classes`,
+                attributes: [`UserId`, `Class`]
+            },{
                 model: Image,
                 attributes: ['id', 'src'],
             },{
@@ -167,6 +204,7 @@ router.get('/post/:postId', async (req, res, next) =>{
                     as: 'Likers',
                     attributes: ['id'],
                 },
+
             ],
         });
         res.status(200).json({post, "likeCount": post.Likers.length});
@@ -176,75 +214,97 @@ router.get('/post/:postId', async (req, res, next) =>{
     }
 });
 
+// 게시물 조회
 
-// 게시물  조회
-router.get('/posts/:lastId', async (req, res, next) => { // GET /
+router.get('/:communityId/:communityClass/:lastId/posts', async (req, res, next) => { // GET /
     /* 	#swagger.tags = ['Community']
-    #swagger.summary = `게시물 조회`
-    #swagger.description = '게시물 조회'
+    #swagger.summary = `임시 게시물 조회`
+    #swagger.description = '임시 게시물 조회'
     */
-    try {
-        const where = {};
-        if (parseInt(req.params.lastId, 10)) { // 초기 로딩이 아닐 때
-            where.id = { [Op.lt]: parseInt(req.params.lastId, 10)}
-        } // 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1
-        const posts = await Post.findAll({
-            where,
-            limit: 10,
-            order: [
-                ['createdAt', 'DESC'],
-                [Comment, 'createdAt', 'DESC'],
-            ],
-            attributes: {
-                exclude: [`UserId`]
-            },
-            include: [{
-                model: User,
-                attributes: ['id', 'nickname'],
-            }, {
-                model: Image,
-                attributes: [`id`, `src`]
-            }, {
-                model: Comment,
-                attributes: ['id', 'content'],
-                include: [{
-                    model: User,
-                    attributes: ['id', 'nickname'],
-                    include: [
-                        {
-                            model: Image,
-                            attributes: ['id', 'src'],
-                        }
-                    ],
-                }, {
-                    model: Comment,
-                    through: `Ref`,
-                    as: `Refs`,
-                    attributes: [`id`, `content`],
-                    include: [
-                        {
-                            model: User,
-                            attributes: ['id', 'nickname']
-                        }
-                        ]
-                }
-                ],
 
-            }, {
-                model: User, // 좋아요 누른 사람
-                as: 'Likers',
-                attributes: ['id'],
-            }],
+    try {
+        // 게시물 타입에 따라 조회 가능하게 하기
+        const community = await Community.findOne({
+            where: { id : req.params.communityId},
         })
-        const FullPosts = posts.map( post => {
-            return {post, "like_count": post.Likers.length}
-        })
-        res.status(200).json(FullPosts);
+        if(community){
+            const where = {}
+            if(parseInt(req.params.lastId, 10)) {
+                where.id = {[Op.lt]: parseInt(req.params.lastId, 10)}
+            }
+            const communityPosts = await community.getPosts({
+                where,
+                limit: 10,
+                order: [
+                    ['createdAt', 'DESC'],
+                    [Comment, 'createdAt', 'DESC'],
+                ],
+                attributes: {
+                    exclude: [`UserId`]
+                },
+                include: [
+                    {
+                        model: Communityclass,
+                        as: `Classes`,
+                        where: { Class: req.params.communityClass },
+                        attributes: [`UserId`, `Class`]
+                    },
+                    {
+                        model: User,
+                        attributes: ['id', 'nickname'],
+                    }, {
+                        model: Image,
+                        attributes: [`id`, `src`]
+                    }, {
+                        model: Comment,
+                        attributes: ['id', 'content'],
+                        include: [{
+                            model: User,
+                            attributes: ['id', 'nickname'],
+                            include: [
+                                {
+                                    model: Image,
+                                    attributes: ['id', 'src'],
+                                }
+                            ],
+                        }, {
+                            model: Comment,
+                            through: `Ref`,
+                            as: `Refs`,
+                            attributes: [`id`, `content`],
+                            include: [
+                                {
+                                    model: User,
+                                    attributes: ['id', 'nickname']
+                                }
+                            ]
+                        }
+                        ],
+
+                    }, {
+                        model: User, // 좋아요 누른 사람
+                        as: 'Likers',
+                        attributes: ['id'],
+                    }],
+
+            });
+            const FullPosts = communityPosts.map( post => {
+                return {post, "likeCount": post.Likers.length}
+            })
+            res.status(200).json(FullPosts);
+        }
+        else{
+            res.status(200).json([]);
+        }
+
+
+
     } catch (error) {
         console.error(error);
         next(error);
     }
 });
+
 
 // 게시물 수정
 router.patch(`/post/:Postid`, isLoggedIn, upload.none(), async (req, res, next) => {

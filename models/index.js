@@ -13,6 +13,8 @@ db.Comment = require(`./comment`)(sequelize,Sequelize)
 db.Hashtag = require(`./hashtag`)(sequelize,Sequelize)
 db.Post = require(`./post`)(sequelize,Sequelize)
 db.Image = require(`./image`)(sequelize,Sequelize)
+db.Community = require(`./community`)(sequelize,Sequelize)
+db.Communityclass = require(`./communityclass`)(sequelize,Sequelize)
 
 
 Object.keys(db).forEach(modelName => {

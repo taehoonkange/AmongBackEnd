@@ -7,9 +7,9 @@ module.exports = (sequelize, DataTypes) => {
         nickname: {
             type: DataTypes.STRING(15)
         },
-        user_type: {
+        userType: {
             type: DataTypes.ENUM({
-                    values: [`NORMAL`, `VIP`, `VVIP`, 'Influence']
+                    values: [`NORMAL`,'INFLUENCER']
                 }
             ),
             defaultValue: `NORMAL`,
@@ -30,10 +30,12 @@ module.exports = (sequelize, DataTypes) => {
     User.associate = (db) => {
         db.User.hasMany(db.Ticket);
         db.User.hasMany(db.Performance);
+        db.User.hasOne(db.Communityclass)
         db.User.hasMany(db.Comment);
         db.User.hasMany(db.Post);
         db.User.belongsToMany(db.Post, { through: 'Like', as: 'Liked' })
         db.User.hasOne(db.Image)
+        db.User.belongsTo(db.Community)
     }
 
     return User;
