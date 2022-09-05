@@ -3,9 +3,10 @@ const multer = require(`multer`)
 const path = require(`path`)
 const fs = require(`fs`)
 
-const { Performance, Ticket, Seat, Image } = require(`../models`)
+const { Performance, Ticket, Seat, Image, User } = require(`../models`)
 
 const { isLoggedIn } = require(`./middlewares`)
+
 const router = express.Router()
 
 
@@ -50,11 +51,18 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             in: `body`,
             description: `공연 바디 정보`,
             schema: { $ref: "#/definitions/Performance"}
-
         }
-
      */
     try{
+        const influencer = await User.findOne({
+            where: {
+                id: req.user.id,
+                userType : `INFLUENCER`
+            }
+        })
+        if(!influencer){
+            res.status(400).send("인플루언서만 등록 가능합니다.")
+        }
         const image = Image.create({
             src: req.body.image
         })
@@ -68,58 +76,49 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             start_at: req.body.start_at,
             end_at: req.body.end_at,
             description: req.body.description,
-            UserId: req.user.id,
+            madeBy: req.user.id,
             ImageId: image.id
         })
 
-
-        let i = 1;
+        let numberCount = 1;
         let end = 0;
         await Promise.all(req.body.infos.map(info=>{
             end += parseInt(info.number);
             let fixed_end = end + 1
-            while(i !== fixed_end){
+            while(numberCount !== fixed_end){
+
                 // 티켓 db 생성
-                Ticket.create({
+                const ticket = Ticket.create({
                     name: req.body.title,
-                    description: req.body.description,
-                    allow_resale: req.body.allow_resale,
-                    UserId: req.user.id,
-                    number: parseInt(`${i}`),
+                    number: parseInt(`${numberCount}`),
                     PerformanceId: performance.id,
-                    imageId: image.id
+                    description: req.body.description
                 })
-
-                i += 1;
-            }
-        }))
-
-        await Ticket.update({
-            status: `RESALE`
-        },{
-            where: { allow_resale: true}
-        })
-
-        // await performance.addTickets(tickets);
-
-        i = 1;
-        end = 0;
-        await Promise.all(req.body.infos.map(info=>{
-            end += parseInt(info.number);
-            let fixed_end = end + 1
-            while(i !== fixed_end){
-
                 //좌석 db 생성
                 Seat.create({
                     class: info.class,
                     price: info.price,
-                    number: parseInt(`${i}`),
-                    PerformanceId: performance.id
+                    number: parseInt(`${numberCount}`),
+                    PerformanceId: performance.id,
+                    TicketId: ticket.id
                 })
 
-                i += 1;
+
+                numberCount += 1;
             }
         }))
+
+        const user = await User.findOne({
+            where: { id: req.user.id}
+        })
+        const tickets = await Ticket.findAll({
+            where: { PerformanceId: performance.id}
+        })
+
+        await user.addCreated(tickets.map( ticket => ticket.id))
+
+        await user.addOwned(tickets.map( ticket => ticket.id))
+
 
 
         res.status(200).send("공연 정보 생성이 완료 되었습니다.")
@@ -128,6 +127,8 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
         next(err)
     }
 } )
+
+
 // 공연 상세 정보 보기
 
 router.get(`/id/:id`,  async (req, res, next) => {

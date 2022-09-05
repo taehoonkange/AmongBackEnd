@@ -4,21 +4,13 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(50),
             allowNull: false
         },
-        // buyer:{
-        //     type: DataTypes.ARRAY(DataTypes.STRING(50)),
-        //     allowNull: true
-        // },
         status: {
             type: DataTypes.ENUM({
-            values: [`SALE`, `RESALE`, `NONE`]
+            values: [`SALE`, `OWN`]
                 }
             ),
             defaultValue: `SALE`,
             allowNull: false
-        },
-        allow_resale : {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false
         },
         description: {
             type: DataTypes.TEXT,
@@ -35,9 +27,11 @@ module.exports = (sequelize, DataTypes) => {
         collate: `utf8mb4_general_ci`
     });
     Ticket.associate = (db) => {
-        db.Ticket.belongsTo(db.User)
+        db.Ticket.belongsToMany(db.User, {through: 'OwnTicket', as: 'Ownes'})
+        db.Ticket.belongsToMany(db.User,{through: 'CreateTicket',as: 'Creates'})
         db.Ticket.belongsTo(db.Performance)
         db.Ticket.hasOne(db.Image)
+        db.Ticket.hasOne(db.Seat)
 
     }
 

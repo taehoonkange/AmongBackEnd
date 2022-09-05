@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
         db.Performance.hasMany(db.Seat)
         db.Performance.hasMany(db.Ticket)
         db.Performance.belongsTo(db.Image)
-        db.Performance.belongsTo(db.User)
+        db.Performance.belongsTo(db.User, {foreignKey: `madeBy`})
     }
 
     return Performance;

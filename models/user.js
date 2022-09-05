@@ -28,7 +28,8 @@ module.exports = (sequelize, DataTypes) => {
         collate: `utf8_general_ci`
     });
     User.associate = (db) => {
-        db.User.hasMany(db.Ticket);
+        db.User.belongsToMany(db.Ticket, {through: 'OwnTicket', as: 'Owned'} );
+        db.User.belongsToMany(db.Ticket, {through: 'CreateTicket',as: 'Created'})
         db.User.hasMany(db.Performance);
         db.User.hasOne(db.Communityclass)
         db.User.hasMany(db.Comment);

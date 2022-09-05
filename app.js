@@ -57,6 +57,7 @@ app.use(`/performances`, performancesRouter)
 app.use(`/ticket`, ticketRouter)
 app.use(`/community`, communityRouter)
 app.use(`/register`, registerRouter)
+app.use(`/ticket`, ticketRouter)
 
 app.listen(3065, () =>{
     console.log(`서버 실행 중..`)

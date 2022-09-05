@@ -90,8 +90,18 @@ router.post(`/login` , isNotLoggedIn,(req, res, next) => {
                     exclude: [ `wallet_address` ]
                 },
                 include: [{
-                    model: Ticket
-                }]
+                    model: Ticket,
+                    through: `CreateTicket`,
+                    as: `Created`,
+                    attributes: [`id`, `name`, `number`]
+                },
+                    {
+                        model: Ticket,
+                        through: `OwnTicket`,
+                        as: `Owned`,
+                        attributes: [`id`, `name`, `number`]
+                    },
+                ]
             })
             return res.status(200).json(fullUser);
         })
@@ -170,9 +180,16 @@ router.get(`/id/:id`, async (req, res, next) => {
             attributes: {
                 exclude: [ `wallet_address` ]
             },
-            include: [{
-                model: Ticket
-            }]
+            include: [
+                {
+                model: Ticket,
+                as: `Created`
+            },
+                {
+                    model: Ticket,
+                    as: `Owned`
+                },
+            ]
         })
         res.status(200).json(fullUser)
     }

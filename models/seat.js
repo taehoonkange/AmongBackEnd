@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     });
     Seat.associate = (db) => {
         db.Seat.belongsTo(db.Performance)
+        db.Seat.belongsTo(db.Ticket)
     }
 
     return Seat;

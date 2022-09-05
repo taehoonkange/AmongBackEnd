@@ -269,8 +269,6 @@ router.get('/:communityId/:communityClass/:lastId/posts', async (req, res, next)
                             ],
                         }, {
                             model: Comment,
-                            through: `Ref`,
-                            as: `Refs`,
                             attributes: [`id`, `content`],
                             include: [
                                 {
@@ -315,7 +313,6 @@ router.patch(`/post/:Postid`, isLoggedIn, upload.none(), async (req, res, next) 
             in: 'body',
             description: '게시물 예',
             schema: {
-                $title: "제목 입력",
                 $content: "내용 입력",
                 $image: "example.png"
             }
@@ -323,10 +320,13 @@ router.patch(`/post/:Postid`, isLoggedIn, upload.none(), async (req, res, next) 
         */
     try {
         const hashtags = req.body.content.match(/#[^\s#]+/g);
-        const post = await Post.update({
-            where: { id: parseInt(req.params.Postid, 10)},
+        await Post.update({
             content: req.body.content
-        });
+        },{where: { id: parseInt(req.params.Postid, 10)}});
+
+        const post = await Post.findOne({
+            where: { id: parseInt(req.params.Postid, 10)}
+        })
         if (hashtags) {
             const result = await Promise.all(hashtags.map((tag) => Hashtag.findOrCreate({
                 where: { name: tag.slice(1).toLowerCase() },
@@ -445,11 +445,10 @@ router.post('/:refId/:PostId/refcomment', isLoggedIn, async (req, res, next) => 
         })
         const ref_comment = await Comment.create({
             content: req.body.content,
-            CommentId: parseInt(req.params.refId, 10),
             UserId: req.user.id
-
         })
-        await comment.addRefs(ref_comment.id)
+        
+        await comment = await comment.addRefs(comment.id)
         const FullRefComment = await Comment.findOne({
             where : { id: ref_comment.id}
         })
@@ -511,7 +510,6 @@ router.patch(`/comment/:CommentId`, isLoggedIn, async (req, res, next) =>{
             ,
             schema: {
                 $content: "대댓글 내용 입력"
-
             }
         }
         */
@@ -544,8 +542,8 @@ router.delete(`/comment/:Commentid`, isLoggedIn, async(req, res, next) => {
     */
     try{
         Comment.destroy({
-            where: {id: parseInt(req.params.Commentid, 10)}
-
+            where: {id: parseInt(req.params.Commentid, 10),
+            CommentId: parseInt(req.params.Commentid, 10) }
         });
         res.status(200).send("댓글이 삭제 되었습니다.")
     }
@@ -554,29 +552,6 @@ router.delete(`/comment/:Commentid`, isLoggedIn, async(req, res, next) => {
         next(e);
     }
 })
-
-// 대댓글 삭제
-
-router.delete(`/refcomment/:Refcommentid`, isLoggedIn, async(req, res, next) => {
-    /* 	#swagger.tags = ['Community']
-    #swagger.summary = `대댓글 삭제`
-    #swagger.description = '대댓글 삭제'
-
-         }*/
-    try{
-        Comment.destroy({
-            where: {id: parseInt(req.params.Refcommentid, 10)}
-        });
-        res.status(200).send("대댓글이 삭제 되었습니다.")
-    }
-    catch (e) {
-        console.error(e);
-        next(e);
-    }
-})
-
-
-
 
 
 

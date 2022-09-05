@@ -32,18 +32,18 @@ const doc = {
     schemes: ["http"],
     definitions: {
         Performance: {
-            title: "공연 제목 입력",
-            place: "공연 장소 입력",
-            time: "공연 시간",
+            title: "행사 제목 입력",
+            place: "행사 장소 입력",
+            time: "행사 시간",
             term_start_at: "YYYY-MM-DD HH:MM:SS",
             term_end_at: "YYYY-MM-DD HH:MM:SS",
             start_at: "YYYY-MM-DD HH:MM:SS",
             end_at: "YYYY-MM-DD HH:MM:SS",
-            description: "공연 상세 설명",
+            description: "행사 상세 설명",
             infos: [{class: "좌석 등급", price: "좌석 가격", number: "좌석 갯수"},],
-            allow_resale: "true or false",
             image: "이미지"
         },
+
         Post: {
             content: "게시물 내용 입력",
             image: ["이미지 주소 입력", "", ]
