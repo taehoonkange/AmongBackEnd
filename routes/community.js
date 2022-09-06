@@ -572,9 +572,8 @@ router.patch(`/comment/:CommentId`, isLoggedIn, async (req, res, next) =>{
         */
     try{
         const comment = await Comment.update({
-            where : { id: req.params.CommentId },
             content: req.body.content,
-        })
+        }, {where : { id: req.params.CommentId }})
 
         if(comment){
             res.status(200).json(comment);
