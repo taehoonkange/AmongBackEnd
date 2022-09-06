@@ -158,7 +158,7 @@ router.post('/:communityId/post', isLoggedIn, upload.none(), async (req, res, ne
             UserId: req.user.id,
             CommunityId: req.params.communityId
         });
-        post.addClasses(newcommunityclass.id)
+        post.addStatuses(newcommunitystatus.id)
         if (hashtags) {
             const result = await Promise.all(hashtags.map((tag) => Hashtag.findOrCreate({
                 where: { name: tag.slice(1).toLowerCase() },
@@ -182,8 +182,8 @@ router.post('/:communityId/post', isLoggedIn, upload.none(), async (req, res, ne
                 },
                 {
                     model: Communitystatus,
-                    as: `Classes`,
-                    attributes: [`UserId`, `Class`]
+                    as: `Statuses`,
+                    attributes: [`UserId`, `status`]
                 },
                 {
                     model: User, // 게시글 작성자
@@ -372,6 +372,18 @@ router.patch(`/post/:Postid`, isLoggedIn, upload.none(), async (req, res, next) 
         const post = await Post.findOne({
             where: { id: parseInt(req.params.Postid, 10)}
         })
+
+        const images =  await Image.findAll({
+            where: {PostId: post.id}
+        })
+
+        images.map( async (img) => {
+                await Image.update({
+                    PostId: null
+                }, {where : {id: img.id}})
+            }
+        )
+
         if (hashtags) {
             const result = await Promise.all(hashtags.map((tag) => Hashtag.findOrCreate({
                 where: { name: tag.slice(1).toLowerCase() },
