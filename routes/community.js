@@ -268,6 +268,16 @@ router.patch(`/post/:Postid`, isLoggedIn, upload.none(), async (req, res, next) 
         const post = await Post.findOne({
             where: { id: parseInt(req.params.Postid, 10)}
         })
+        const images =  await Image.findAll({
+            where: {PostId: post.id}
+        })
+
+        images.map( async (img) => {
+                await Image.update({
+                    PostId: null
+                }, {where : {id: img.id}})
+            }
+        )
         if (hashtags) {
             const result = await Promise.all(hashtags.map((tag) => Hashtag.findOrCreate({
                 where: { name: tag.slice(1).toLowerCase() },
