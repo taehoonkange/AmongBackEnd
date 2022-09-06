@@ -327,8 +327,27 @@
           "200": {
             "description": "OK"
           },
+          "400": {
+            "description": "Bad Request"
+          },
           "401": {
             "description": "Unauthorized"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Performances"
+        ],
+        "summary": "모든 공연 정보 보기",
+        "description": "모든 공연 정보 보기",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         }
       }
@@ -358,25 +377,28 @@
         }
       }
     },
-    "/performances/": {
+    "/ticket/{performanceId}/onsale": {
       "get": {
-        "tags": [
-          "Performances"
+        "description": "",
+        "parameters": [
+          {
+            "name": "performanceId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
         ],
-        "summary": "모든 공연 정보 보기",
-        "description": "모든 공연 정보 보기",
-        "parameters": [],
         "responses": {
-          "201": {
-            "description": "Created"
+          "200": {
+            "description": "OK"
           },
-          "403": {
-            "description": "Forbidden"
+          "400": {
+            "description": "Bad Request"
           }
         }
       }
     },
-    "/ticket/{id}": {
+    "/ticket/{id}/detail": {
       "get": {
         "tags": [
           "Ticket"
@@ -401,16 +423,12 @@
         }
       }
     },
-    "/community/{userId}/existence": {
-      "get": {
-        "tags": [
-          "Community"
-        ],
-        "summary": "커뮤니티 존재",
-        "description": "커뮤니티 존재",
+    "/ticket/{ticketId}/register": {
+      "patch": {
+        "description": "",
         "parameters": [
           {
-            "name": "userId",
+            "name": "ticketId",
             "in": "path",
             "required": true,
             "type": "string"
@@ -422,6 +440,101 @@
           },
           "400": {
             "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/ticket/{ticketId}/buy": {
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/ticket/resale": {
+      "get": {
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/ticket/{ticketId}/useTicket": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/ticket/ticketbook": {
+      "get": {
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/community/{communityId}/checkStatus": {
+      "get": {
+        "tags": [
+          "Community"
+        ],
+        "summary": "커뮤니티 등급 확인",
+        "description": "커뮤니티 등급 확인",
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -506,7 +619,7 @@
         }
       }
     },
-    "/community/{communityId}/{communityClass}/{lastId}/posts": {
+    "/community/{communityId}/{communityStatus}/{lastId}/posts": {
       "get": {
         "tags": [
           "Community"
@@ -521,7 +634,7 @@
             "type": "string"
           },
           {
-            "name": "communityClass",
+            "name": "communityStatus",
             "in": "path",
             "required": true,
             "type": "string"
@@ -561,10 +674,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "title": {
-                  "type": "string",
-                  "example": "제목 입력"
-                },
                 "content": {
                   "type": "string",
                   "example": "내용 입력"
@@ -575,7 +684,6 @@
                 }
               },
               "required": [
-                "title",
                 "content",
                 "image"
               ]
@@ -819,31 +927,6 @@
         }
       }
     },
-    "/community/refcomment/{Refcommentid}": {
-      "delete": {
-        "tags": [
-          "Community"
-        ],
-        "summary": "대댓글 삭제",
-        "description": "대댓글 삭제",
-        "parameters": [
-          {
-            "name": "Refcommentid",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
     "/register/": {
       "patch": {
         "tags": [
@@ -869,15 +952,15 @@
       "properties": {
         "title": {
           "type": "string",
-          "example": "공연 제목 입력"
+          "example": "행사 제목 입력"
         },
         "place": {
           "type": "string",
-          "example": "공연 장소 입력"
+          "example": "행사 장소 입력"
         },
         "time": {
           "type": "string",
-          "example": "공연 시간"
+          "example": "행사 시간"
         },
         "term_start_at": {
           "type": "string",
@@ -897,7 +980,7 @@
         },
         "description": {
           "type": "string",
-          "example": "공연 상세 설명"
+          "example": "행사 상세 설명"
         },
         "infos": {
           "type": "array",
@@ -918,10 +1001,6 @@
               }
             }
           }
-        },
-        "allow_resale": {
-          "type": "string",
-          "example": "true or false"
         },
         "image": {
           "type": "string",

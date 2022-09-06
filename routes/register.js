@@ -1,6 +1,6 @@
 const express = require(`express`)
 
-const { User, Community, Communityclass } = require(`../models`)
+const { User, Community, Communitystatus } = require(`../models`)
 const {isLoggedIn} = require("./middlewares");
 
 const router = express.Router()
@@ -28,8 +28,8 @@ router.patch(`/`, isLoggedIn, async (req, res, next) => {
                 head : req.user.id
             })
 
-            await Communityclass.create({
-                Class: `INFLUENCER`,
+            await Communitystatus.create({
+                status: `INFLUENCER`,
                 UserId : req.user.id,
                 CommunityId: community.id
             })

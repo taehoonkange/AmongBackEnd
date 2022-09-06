@@ -1,6 +1,6 @@
 const express = require(`express`)
 
-const { Ticket } = require(`../models`)
+const { Ticket, User, CreateTicket, OwnTicket } = require(`../models`)
 
 const { Op } =require("sequelize")
 const {isLoggedIn} = require("./middlewares");
@@ -8,7 +8,52 @@ const {isLoggedIn} = require("./middlewares");
 const router = express.Router()
 
 
+
 // 판매 티켓 보기
+// router.get(`/:performanceId/onsale`, async (req, res, next) => {
+//     try{
+//         const ticket = await Ticket.findOne({
+//             where: { PerformanceId: req.params.performanceId}
+//         })
+//         const createTicket = await CreateTicket.findAll({})
+//         const ownTicket = await OwnTicket.findAll({})
+//
+//         const ticketCreater = await ticket.getCreates()
+//
+//         const onsaleTicekts = await Ticket.findAll({
+//             where: { status: `SALE`},
+//             include: [
+//                 {
+//                     model: User,
+//                     through: {
+//                         where: { UserId: ticketCreater.id}
+//                     },
+//                     as: `Ownes`,
+//                     where: { id:  `null`}
+//                 },
+//                 {
+//                     model: User,
+//                     through: {
+//                         where: { UserId: {
+//                                 [Op.ne] : req.user.id
+//                             }}
+//                     },
+//                     as: `Creates`
+//                 }
+//             ]
+//         })
+//         if(onsaleTicekts){
+//             res.status(200).json(onsaleTicekts)
+//         }
+//         else{
+//             res.status(400).send("판매되는 티켓이 없습니다.")
+//         }
+//     }
+//     catch (e) {
+//         console.error(e)
+//         next(e)
+//     }
+// })
 
 
 // 티켓 상세 정보 보기
@@ -19,7 +64,13 @@ router.get(`/:id/detail`,  async (req, res, next) => {
         */
     try{
         const ticket = await Ticket.findOne({
-            where: { id: req.params.id}
+            where: { id: req.params.id},
+            include:[
+                {
+                    model: User,
+                    as: `Ownes`
+                }
+            ]
         })
     if(!ticket){
         return res.status(403).send(`존재하지 않는 티켓입니다.`)
@@ -32,11 +83,12 @@ router.get(`/:id/detail`,  async (req, res, next) => {
 } )
 
 // 티켓 판매 등록
-router.patch(`/:ticketId/sale`, isLoggedIn, async (req, res, next) => {
+router.patch(`/:ticketId/register`, isLoggedIn, async (req, res, next) => {
     try{
 
         const ticket = findOne({
-            where: {id: req.params.ticketId}
+            where: {id: req.params.ticketId,
+            status: `OWNED`}
         })
 
         const isOwned = await ticket.getOwnes()
@@ -64,12 +116,18 @@ router.patch(`/:ticketId/buy`, isLoggedIn, async (req, res, next) => {
             where: {id: req.params.ticketId}
         })
         await Ticket.update({
-            status: `OWN`
+            status: `OWNED`
         }, { where: { id: ticket.id}})
 
         const isOwner = await ticket.getOwnes()
+        // 리셀일 경우
         if(isOwner){
             await ticket.removeOwnes()
+        }
+
+        // 일반 판매일 경우
+        else{
+
         }
 
         await ticket.addOwnes(req.user.id)
@@ -83,27 +141,37 @@ router.patch(`/:ticketId/buy`, isLoggedIn, async (req, res, next) => {
 })
 
 // 재판매 티켓 보기
-
+// 수정 사안
 router.get(`/resale`, async (req, res, next) => {
     try{
+        const ticket = await Ticket.findOne({
+            where: { PerformanceId: req.params.performanceId}
+        })
+
+        const ticketCreater = await ticket.getCreates()
+
         const resaleTicekts = await Ticket.findAll({
             where: { status: `SALE`},
             include: [
                 {
                     model: User,
-                    as: Ownes,
-                    where: { UserId: {
-                        [Op.ne] : `null`
-                    }
-                    }
+                    through: {
+                        where: { UserId: {
+                                [Op.ne] : ticketCreater.id
+                            }
+                        }
+                    },
+                    as: `Ownes`
                 },
                 {
                     model: User,
-                    as: Creates,
-                    where: { UserId: {
-                            [Op.ne] : req.user.id
+                    through: {
+                        where: { UserId: {
+                                [Op.ne] : req.user.id
+                            }
                         }
-                    }
+                    },
+                    as: `Creates`
                 }
             ]
         })
@@ -111,8 +179,25 @@ router.get(`/resale`, async (req, res, next) => {
             res.status(200).json(resaleTicekts)
         }
         else{
-            res.status(400).send("")
+            res.status(400).send("등록된 리셀 티켓이 없습니다.")
         }
+    }
+    catch (e) {
+        console.error(e)
+        next(e)
+    }
+})
+
+// 티켓 사용하기
+router.get(`/:ticketId/useTicket`, isLoggedIn, async (req, res, next) => {
+    try{
+        const ticekts = await Ticket.update({
+            status: `USED`
+        },{
+            where: {id: req.params.ticketId}
+        })
+ß
+        res.status(200).json(ticekts)
     }
     catch (e) {
         console.error(e)
@@ -127,8 +212,10 @@ router.get(`/ticketbook`, isLoggedIn, async (req, res, next) => {
             where: { id: req.user.id},
             include: [{
                 model: User,
-                as: Ownes
-            }]
+                as: `Ownes`,
+                where: {id: req.user.id}
+            }
+            ]
         })
 
         res.status(200).json(ticekts)

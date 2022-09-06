@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     Community.associate = (db) => {
         db.Community.belongsTo(db.User, { foreignKey: `head`})
         db.Community.hasMany(db.Post)
-        db.Community.hasOne(db.Communityclass)
+        db.Community.hasOne(db.Communitystatus)
     }
 
     return Community;

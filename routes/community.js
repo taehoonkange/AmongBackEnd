@@ -1,6 +1,6 @@
 const express = require(`express`)
 const { Op } = require(`sequelize`)
-const { Comment, User, Post, Image, Community, Communityclass  } = require(`../models`)
+const { Comment, User, Post, Image, Community, Communitystatus, Ticket  } = require(`../models`)
 const multer = require(`multer`)
 const path = require(`path`)
 const fs = require(`fs`)
@@ -32,24 +32,68 @@ const upload = multer({
     limit: { fileSize: 20 * 1024 * 1024 }
 })
 
-//커뮤니티 존재
-router.get(`/:userId/existence`, async ( req, res, next) => {
+//커뮤니티 등급 확인
+router.get(`/:communityId/checkStatus`, async ( req, res, next) => {
     /* 	#swagger.tags = ['Community']
-    #swagger.summary = `커뮤니티 존재`
-    #swagger.description = '커뮤니티 존재'
+    #swagger.summary = `커뮤니티 등급 확인`
+    #swagger.description = '커뮤니티 등급 확인'
     */
     try{
-        const community = await Community.findOne({
-            where : { head : req.params.userId}
-        })
-        console.log(community.toJSON())
-        if(community){
-            res.status(200).send("커뮤니티가 존재합니다.")
-        }
-        else{
-            res.status(400).send("커뮤니티가 존재하지 않습니다.")
-        }
+        const tickets = await Ticket.findAll({
+            where: { status: `USED` },
 
+            include: [
+                {
+                    model: User,
+                    through:{
+                        where: { UserId: req.user.id}
+                    },
+                    as: `Ownes`,
+                }]
+        })
+
+        console.log(`오류 부분 체크 \n`)
+        tickets.map(el => {
+                const t = el.get({ plain: true })
+                console.log(t)
+        })
+// 게시물에 동일한 메소드 삭제 예정 왜냐하면 이 과정 후에 게시물 생성하기 때문에
+        const communitystatus = await Communitystatus.findOne({
+            where : { CommunityId: req.params.communityId,
+                UserId: req.user.id
+            }
+        })
+        // 처음 방문자
+        if (!communitystatus){
+            await Communitystatus.create({
+                UserId: req.user.id,
+                CommunityId: req.params.communityId
+            })
+        }
+        const isInfluencer = await Communitystatus.findOne({
+            where : { CommunityId: req.params.communityId,
+                UserId: req.user.id,
+                status: `INFLUENCER`
+            }
+        })
+        // 인플루언서가 아닐 경우
+        if (!isInfluencer){
+            if(tickets.length >= 1){
+                await Communitystatus.update({
+                    status: `VIP`
+                },{
+                    where : { communityId: req.params.communityId,
+                        UserId: req.user.id
+                    }
+                })
+            }
+        }
+        const member = await Communitystatus.findOne({
+            where : { CommunityId: req.params.communityId,
+                UserId: req.user.id
+            }
+        })
+        res.status(200).json(member)
     }
     catch (e) {
         console.error(e)
@@ -90,20 +134,20 @@ router.post('/:communityId/post', isLoggedIn, upload.none(), async (req, res, ne
 
     }*/
     try {
-        // 등급 확인
-        const communityclass = await Communityclass.findOne({
+        // 등급 확인 제거 예정
+        const communitystatus = await Communitystatus.findOne({
             where : { communityId: req.params.communityId,
                 UserId: req.user.id
             }
         })
 
-        if (!communityclass){
-            await Communityclass.create({
+        if (!communitystatus){
+            await Communitystatus.create({
                 UserId: req.user.id,
                 CommunityId: req.params.communityId
             })
         }
-        const newcommunityclass = await Communityclass.findOne({
+        const newcommunitystatus = await Communitystatus.findOne({
             where : { communityId: req.params.communityId,
                 UserId: req.user.id
             }
@@ -137,7 +181,7 @@ router.post('/:communityId/post', isLoggedIn, upload.none(), async (req, res, ne
                     model: Image,
                 },
                 {
-                    model: Communityclass,
+                    model: Communitystatus,
                     as: `Classes`,
                     attributes: [`UserId`, `Class`]
                 },
@@ -172,7 +216,7 @@ router.get('/:postId/post', async (req, res, next) =>{
                 model: User,
                 attributes: ['id', 'nickname'],
             }, {
-                model: Communityclass,
+                model: Communitystatus,
                 as: `Classes`,
                 attributes: [`UserId`, `Class`]
             },{
@@ -216,7 +260,7 @@ router.get('/:postId/post', async (req, res, next) =>{
 
 // 게시물 조회
 
-router.get('/:communityId/:communityClass/:lastId/posts', async (req, res, next) => { // GET /
+router.get('/:communityId/:communityStatus/:lastId/posts', async (req, res, next) => { // GET /
     /* 	#swagger.tags = ['Community']
     #swagger.summary = `임시 게시물 조회`
     #swagger.description = '임시 게시물 조회'
@@ -244,9 +288,9 @@ router.get('/:communityId/:communityClass/:lastId/posts', async (req, res, next)
                 },
                 include: [
                     {
-                        model: Communityclass,
+                        model: Communitystatus,
                         as: `Classes`,
-                        where: { Class: req.params.communityClass },
+                        where: { status: req.params.communityStatus },
                         attributes: [`UserId`, `Class`]
                     },
                     {
@@ -320,6 +364,7 @@ router.patch(`/post/:Postid`, isLoggedIn, upload.none(), async (req, res, next) 
         */
     try {
         const hashtags = req.body.content.match(/#[^\s#]+/g);
+
         await Post.update({
             content: req.body.content
         },{where: { id: parseInt(req.params.Postid, 10)}});

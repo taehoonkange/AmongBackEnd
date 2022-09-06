@@ -45,11 +45,12 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
         #swagger.description = '유저 티켓 조회 로그인 필요' */
 
     try{
-        const ticket = await Ticket.findAll({
-            where: {UserId: req.user.id}
+        const user = await User.findOne({
+            where: { id: req.user.id}
+        })
 
-        });
-        res.status(200).json(ticket);
+        const tickets = await user.getOwned()
+        res.status(200).json(tickets);
     }
     catch(err){
         console.error(err)
