@@ -16,6 +16,7 @@ db.Image = require(`./image`)(sequelize,Sequelize)
 db.Community = require(`./community`)(sequelize,Sequelize)
 db.Communitystatus = require(`./communitystatus`)(sequelize,Sequelize)
 db.Influencer = require(`./influencer`)(sequelize,Sequelize)
+db.Limiteduser = require(`./limiteduser`)(sequelize,Sequelize)
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
