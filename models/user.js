@@ -16,11 +16,6 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
 
-        description: {
-            type: DataTypes.TEXT,
-            allowNull: true
-        },
-
     }, {
         modelName: 'User',
         tableName: 'users',
@@ -36,8 +31,8 @@ module.exports = (sequelize, DataTypes) => {
         db.User.hasMany(db.Post);
         db.User.belongsToMany(db.Post, { through: 'Like', as: 'Liked' })
         db.User.hasOne(db.Image)
-        db.User.belongsTo(db.Community)
+        db.User.hasOne(db.Community)
+        db.User.hasOne(db.Influencer)
     }
-
     return User;
 }

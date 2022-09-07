@@ -9,6 +9,7 @@ const userRouter = require(`./routes/user`)
 const ticketRouter = require(`./routes/ticket`)
 const performanceRouter = require(`./routes/performance`)
 const communityRouter = require(`./routes/community`)
+const influencerRouter = require(`./routes/influencer`)
 
 
 const db = require(`./models`)
@@ -55,6 +56,7 @@ app.use(`/performance`, performanceRouter)
 app.use(`/ticket`, ticketRouter)
 app.use(`/community`, communityRouter)
 app.use(`/ticket`, ticketRouter)
+app.use(`/influencer`, influencerRouter)
 
 app.listen(3065, () =>{
     console.log(`서버 실행 중..`)

@@ -52,11 +52,6 @@ router.get(`/:communityId/checkStatus`, async ( req, res, next) => {
                 }]
         })
 
-        console.log(`오류 부분 체크 \n`)
-        tickets.map(el => {
-                const t = el.get({ plain: true })
-                console.log(t)
-        })
 // 게시물에 동일한 메소드 삭제 예정 왜냐하면 이 과정 후에 게시물 생성하기 때문에
         const communitystatus = await Communitystatus.findOne({
             where : { CommunityId: req.params.communityId,
@@ -101,11 +96,6 @@ router.get(`/:communityId/checkStatus`, async ( req, res, next) => {
     }
 })
 
-/* 커뮤니티 등급 부분 추가
-팔로우로 등급 생성
-팔로우 취소로 등급 삭제
-티켓 갯수로 등급 수정하기
-*/
 //게시물 사진 저장
 
 router.post('/images', isLoggedIn, upload.array('image'), (req, res) => { // POST /post/images
