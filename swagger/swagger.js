@@ -43,7 +43,7 @@ const doc = {
         Post: {
             content: "게시물 내용 입력",
             image: ["이미지 주소 입력", "", ],
-            limitedReaders: ["NORMAL","INFLUENCER"]
+            limitedReader: "VIP"
         }
     }
 };
