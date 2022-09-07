@@ -43,6 +43,7 @@ router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res) => {
 })
 
 //공연 정보 저장
+// 수정 필요
 router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
     /* 	#swagger.tags = ['Performance']
         #swagger.summary = `공연 정보 저장`
@@ -79,30 +80,29 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             madeBy: req.user.id,
             ImageId: image.id
         })
-
         let numberCount = 1;
         let end = 0;
-        await Promise.all(req.body.infos.map(info=>{
+
+        await Promise.all( req.body.infos.map( async (info)=>{
             end += parseInt(info.number);
             let fixed_end = end + 1
             while(numberCount !== fixed_end){
 
                 // 티켓 db 생성
-                const ticket = Ticket.create({
+                const ticket = await Ticket.create({
                     name: req.body.title,
                     number: parseInt(`${numberCount}`),
                     PerformanceId: performance.id,
                     description: req.body.description
                 })
                 //좌석 db 생성
-                Seat.create({
+                await Seat.create({
                     class: info.class,
                     price: info.price,
                     number: parseInt(`${numberCount}`),
                     PerformanceId: performance.id,
                     TicketId: ticket.id
                 })
-
 
                 numberCount += 1;
             }
@@ -116,7 +116,6 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
         })
 
         await user.addCreated(tickets.map( ticket => ticket.id))
-
         await user.addOwned(tickets.map( ticket => ticket.id))
 
 
