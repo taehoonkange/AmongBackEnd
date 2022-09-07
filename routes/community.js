@@ -151,12 +151,11 @@ router.post('/:communityId/post', isLoggedIn, upload.none(), async (req, res, ne
             CommunityId: req.params.communityId
         });
 
-        // 읽기 권한 제한
-        const onlyRead = await Promise.all(req.body.limitedReaders.map((reader) =>
-            Limiteduser.findOrCreate({
-                where: { status: reader}
-            })));
-        await post.addLimitedusers(onlyRead.map((u) => u[0]))
+        const onlyRead = await Limiteduser.create({
+                status: req.body.limitedReader
+        })
+        await post.setLimiteduser(onlyRead)
+
         // 게시물에 작성자 등급 기입
         post.addStatuses(newcommunitystatus.id)
 
@@ -212,8 +211,26 @@ router.get('/:postId/post', async (req, res, next) =>{
    */
 
     try {
-        //좋아요 갯수 세기
+        // 읽기 제한
+        const limitedpost = await Post.findOne({
+            where: { id: req.params.postId}
+        })
+        const limitedreader =  (await limitedpost.getLimiteduser()).status
 
+        const reader = await User.findOne({
+            where: { id : req.user.id}
+        })
+        const isMember = (await reader.getCommunitystatus())
+
+        if(!isMember){
+            res.status(400).send("커뮤니티 회원이 아닙니다.")
+        }
+        console.log(isMember,  isMember.status)
+        const MemberStatus = isMember.status
+        console.log(limitedreader === `VIP` && MemberStatus === `NORMAL`)
+        if(limitedreader === `VIP` && MemberStatus === `NORMAL`){
+            res.status(400).send("VIP 등급이상만 읽을 수 있습니다.")
+        }
         const post = await Post.findOne({
             where: { id: req.params.postId},
             order: [[Comment,'createdAt', 'DESC'],
@@ -225,9 +242,6 @@ router.get('/:postId/post', async (req, res, next) =>{
                 model: Communitystatus,
                 as: `Statuses`,
                 attributes: [`UserId`, `status`]
-            },{
-                model: Limiteduser,
-                attributes: [`status`]
             },{
                 model: Image,
                 attributes: ['id', 'src'],
@@ -260,13 +274,14 @@ router.get('/:postId/post', async (req, res, next) =>{
 
             ],
         });
+
+
         res.status(200).json({post, "likeCount": post.Likers.length});
     } catch (error) {
         console.error(error);
         next(error);
     }
 });
-
 // 게시물 조회
 
 router.get('/:communityId/:communityStatus/:lastId/posts', async (req, res, next) => { // GET /
@@ -298,8 +313,103 @@ router.get('/:communityId/:communityStatus/:lastId/posts', async (req, res, next
                 include: [
                     {
                         model: Communitystatus,
-                        as: `Statuses`,
+                        as: `Classes`,
                         where: { status: req.params.communityStatus },
+                        attributes: [`UserId`, `Class`]
+                    },
+                    {
+                        model: User,
+                        attributes: ['id', 'nickname'],
+                    }, {
+                        model: Image,
+                        attributes: [`id`, `src`]
+                    }, {
+                        model: Comment,
+                        attributes: ['id', 'content'],
+                        include: [{
+                            model: User,
+                            attributes: ['id', 'nickname'],
+                            include: [
+                                {
+                                    model: Image,
+                                    attributes: ['id', 'src'],
+                                }
+                            ],
+                        }, {
+                            model: Comment,
+                            attributes: [`id`, `content`],
+                            include: [
+                                {
+                                    model: User,
+                                    attributes: ['id', 'nickname']
+                                }
+                            ]
+                        }
+                        ],
+
+                    }, {
+                        model: User, // 좋아요 누른 사람
+                        as: 'Likers',
+                        attributes: ['id'],
+                    }],
+
+            });
+            const FullPosts = communityPosts.map( post => {
+                return {post, "likeCount": post.Likers.length}
+            })
+            res.status(200).json(FullPosts);
+        }
+        else{
+            res.status(200).json([]);
+        }
+
+
+
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+});
+
+// 인플루언서 게시물 조회
+
+router.get('/:communityId/:lastId/posts', async (req, res, next) => { // GET /
+    /* 	#swagger.tags = ['Community']
+    #swagger.summary = `인플루언서 게시물 조회`
+    #swagger.description = '인플루언서 게시물 조회'
+    */
+
+    try {
+        const community = await Community.findOne({
+            where: { id : req.params.communityId},
+        })
+        if(community){
+            const reader = await User.findOne({
+                where: { id : req.user.id}
+            })
+            const isMember = (await reader.getCommunitystatus())
+            if(!isMember){
+                res.status(400).send("커뮤니티 회원이 아닙니다.")
+            }
+
+            // 멤버의 등급
+            const memberStatus = isMember.status
+            console.log(`멤버 등급`, memberStatus)
+            const where = {}
+            if(parseInt(req.params.lastId, 10)) {
+                where.id = {[Op.lt]: parseInt(req.params.lastId, 10)}
+            }
+            const communityPosts = await community.getPosts({
+                where,
+                limit: 10,
+                order: [
+                    ['id', 'DESC'],
+                    [Comment, 'createdAt', 'DESC'],
+                ],
+                include: [
+                    {
+                        model: Communitystatus,
+                        as: `Statuses`,
                         attributes: [`UserId`, `status`]
                     },
                     {
@@ -339,15 +449,29 @@ router.get('/:communityId/:communityStatus/:lastId/posts', async (req, res, next
                         as: 'Likers',
                         attributes: ['id'],
                     }],
-
             });
-            const FullPosts = communityPosts.map( post => {
+
+            console.log(`communityPosts 값`, communityPosts)
+            const FullPosts = await Promise.all(communityPosts.map( async  (post) => {
+                // 읽기 제한
+                console.log(`post 값`, post)
+                const limitedreader = await post.getLimiteduser()
+                console.log(`limitedreader 값`,limitedreader)
+                console.log(`limitedreader.status 값`,limitedreader.status)
+                if(limitedreader.status === `VIP` && memberStatus === `NORMAL`){
+                    // 못 읽는 글
+                    return null
+                }
+                console.log(`post 값`, post)
+
                 return {post, "likeCount": post.Likers.length}
-            })
-            res.status(200).json(FullPosts);
+            }))
+            console.log(`FullPosts 값`, FullPosts)
+            const fixedFuullPosted = FullPosts.filter((element) => element != null);
+            res.status(200).json(fixedFuullPosted);
         }
         else{
-            res.status(200).json([]);
+            res.status(400).send("존재하지 않은 커뮤니티입니다.");
         }
 
 
