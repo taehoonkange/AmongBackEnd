@@ -21,10 +21,6 @@ const doc = {
         {
             name: 'Community',
             description: '게시물 API',
-        },
-        {
-            name: 'Register',
-            description: '등록 API',
         }
 
     ],

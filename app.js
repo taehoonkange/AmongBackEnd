@@ -9,7 +9,7 @@ const userRouter = require(`./routes/user`)
 const ticketRouter = require(`./routes/ticket`)
 const performanceRouter = require(`./routes/performance`)
 const communityRouter = require(`./routes/community`)
-const registerRouter = require(`./routes/register`)
+
 
 const db = require(`./models`)
 
@@ -54,7 +54,6 @@ app.use(`/user`, userRouter)
 app.use(`/performance`, performanceRouter)
 app.use(`/ticket`, ticketRouter)
 app.use(`/community`, communityRouter)
-app.use(`/register`, registerRouter)
 app.use(`/ticket`, ticketRouter)
 
 app.listen(3065, () =>{
