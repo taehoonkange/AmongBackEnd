@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     Ticket.associate = (db) => {
         db.Ticket.belongsToMany(db.User, {through: 'OwnTicket', as: 'Ownes'})
         db.Ticket.belongsToMany(db.User,{through: 'CreateTicket',as: 'Creates'})
+        db.Ticket.belongsToMany(db.User,{through: 'Record',as: 'Records'})
         db.Ticket.belongsTo(db.Performance)
         db.Ticket.hasOne(db.Image)
         db.Ticket.hasOne(db.Seat)

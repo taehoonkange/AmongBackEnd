@@ -147,9 +147,12 @@ router.patch(`/:ticketId/buy`, isLoggedIn, async (req, res, next) => {
             }, { where: { id: saleTicket.id}})
         }
 
+        // 소유권 양도
         await saleTicket.removeOwnes(ownerId)
         await saleTicket.addOwnes(req.user.id)
 
+        //소유자 기록
+        await saleTicket.addRecords(req.user.id)
         res.status(200).send("티켓 구매를 성공하였습니다.")
     }
     catch (e) {
@@ -176,21 +179,6 @@ router.get(`/resale`, async (req, res, next) => {
                     as: `Creates`
                 }]
             })
-
-        // const processing = await Promise.all(tickets.map((ticket)=>{
-        //     const owner = ticket.Ownes[0].id
-        //     const creater = ticket.Creates[0].id
-        //     const newTicket = Ticket.findOne({
-        //         where: { id: ticket.id}
-        //     })
-        //     if ( owner === creater ){
-        //         return null
-        //     }
-        //     else{
-        //         return newTicket
-        //     }
-        // }))
-        // const resaleTicekts = processing.filter((element) => element !== null);
 
 
         console.log(tickets)
