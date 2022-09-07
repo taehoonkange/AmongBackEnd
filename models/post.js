@@ -4,7 +4,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: false
         }
-
     }, {
         modelName: 'Post',
         tableName: 'posts',
@@ -16,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         db.Post.belongsTo(db.Community)
         db.Post.hasMany(db.Comment)
         db.Post.hasMany(db.Image)
+        db.Post.hasMany(db.Limiteduser)
         db.Post.belongsToMany(db.User, { through: 'Like', as: 'Likers' }) // post.addLikers, post.removeLikers, post.getLikers
         db.Post.belongsToMany(db.Hashtag, { through: 'PostHashtag' });
         db.Post.belongsToMany(db.Communitystatus, { through: 'PostClass', as: `Statuses` });

@@ -1,6 +1,6 @@
 const express = require(`express`)
 const { Op } = require(`sequelize`)
-const { Comment, User, Post, Image, Community, Communitystatus, Ticket  } = require(`../models`)
+const { Comment, User, Post, Image, Community, Communitystatus, Ticket, Limiteduser  } = require(`../models`)
 const multer = require(`multer`)
 const path = require(`path`)
 const fs = require(`fs`)
@@ -124,7 +124,7 @@ router.post('/:communityId/post', isLoggedIn, upload.none(), async (req, res, ne
 
     }*/
     try {
-        // 등급 확인 제거 예정
+        // 등급 확인 제거 예정=============================
         const communitystatus = await Communitystatus.findOne({
             where : { communityId: req.params.communityId,
                 UserId: req.user.id
@@ -142,13 +142,24 @@ router.post('/:communityId/post', isLoggedIn, upload.none(), async (req, res, ne
                 UserId: req.user.id
             }
         })
+        //===========================================
+
         const hashtags = req.body.content.match(/#[^\s#]+/g);
         const post = await Post.create({
             content: req.body.content,
             UserId: req.user.id,
             CommunityId: req.params.communityId
         });
+
+        // 읽기 권한 제한
+        const onlyRead = await Promise.all(req.body.limitedReaders.map((reader) =>
+            Limiteduser.findOrCreate({
+                where: { status: reader}
+            })));
+        await post.addLimitedusers(onlyRead.map((u) => u[0]))
+        // 게시물에 작성자 등급 기입
         post.addStatuses(newcommunitystatus.id)
+
         if (hashtags) {
             const result = await Promise.all(hashtags.map((tag) => Hashtag.findOrCreate({
                 where: { name: tag.slice(1).toLowerCase() },
@@ -178,7 +189,12 @@ router.post('/:communityId/post', isLoggedIn, upload.none(), async (req, res, ne
                 {
                     model: User, // 게시글 작성자
                     attributes: ['id', 'nickname'],
-                }]
+                },
+                {
+                    model: Limiteduser,
+                    attributes: [`status`]
+                }
+            ]
         })
 
         res.status(201).json(fullPost);
@@ -207,8 +223,11 @@ router.get('/:postId/post', async (req, res, next) =>{
                 attributes: ['id', 'nickname'],
             }, {
                 model: Communitystatus,
-                as: `Classes`,
-                attributes: [`UserId`, `Class`]
+                as: `Statuses`,
+                attributes: [`UserId`, `status`]
+            },{
+                model: Limiteduser,
+                attributes: [`status`]
             },{
                 model: Image,
                 attributes: ['id', 'src'],
@@ -252,8 +271,8 @@ router.get('/:postId/post', async (req, res, next) =>{
 
 router.get('/:communityId/:communityStatus/:lastId/posts', async (req, res, next) => { // GET /
     /* 	#swagger.tags = ['Community']
-    #swagger.summary = `임시 게시물 조회`
-    #swagger.description = '임시 게시물 조회'
+    #swagger.summary = `게시물 조회`
+    #swagger.description = '게시물 조회'
     */
 
     try {
@@ -279,13 +298,16 @@ router.get('/:communityId/:communityStatus/:lastId/posts', async (req, res, next
                 include: [
                     {
                         model: Communitystatus,
-                        as: `Classes`,
+                        as: `Statuses`,
                         where: { status: req.params.communityStatus },
-                        attributes: [`UserId`, `Class`]
+                        attributes: [`UserId`, `status`]
                     },
                     {
                         model: User,
                         attributes: ['id', 'nickname'],
+                    }, {
+                        model: Limiteduser,
+                        attributes: [`status`]
                     }, {
                         model: Image,
                         attributes: [`id`, `src`]
@@ -303,14 +325,13 @@ router.get('/:communityId/:communityStatus/:lastId/posts', async (req, res, next
                             ],
                         }, {
                             model: Comment,
+                            through: `Ref`,
+                            as: `Refs`,
                             attributes: [`id`, `content`],
-                            include: [
-                                {
-                                    model: User,
-                                    attributes: ['id', 'nickname']
-                                }
-                            ]
-                        }
+                            include: [{
+                                model: User,
+                                attributes: ['id', 'nickname']
+                            }]}
                         ],
 
                     }, {
