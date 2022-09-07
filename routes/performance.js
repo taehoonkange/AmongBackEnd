@@ -95,6 +95,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                     PerformanceId: performance.id,
                     description: req.body.description
                 })
+
                 //좌석 db 생성
                 await Seat.create({
                     class: info.class,
