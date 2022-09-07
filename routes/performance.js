@@ -64,7 +64,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
         if(!influencer){
             res.status(400).send("인플루언서만 등록 가능합니다.")
         }
-        const image = Image.create({
+        const image = await Image.create({
             src: req.body.image
         })
         // 공연 db 생성
@@ -77,9 +77,9 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             start_at: req.body.start_at,
             end_at: req.body.end_at,
             description: req.body.description,
-            madeBy: req.user.id,
-            ImageId: image.id
+            madeBy: req.user.id
         })
+        await performance.setImage(image.id)
         let numberCount = 1;
         let end = 0;
 
@@ -96,6 +96,9 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                     description: req.body.description
                 })
 
+                await ticket.setImage(image.id)
+                await ticket.addRecords(req.user.id)
+
                 //좌석 db 생성
                 await Seat.create({
                     class: info.class,
@@ -109,15 +112,13 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             }
         }))
 
-        const user = await User.findOne({
-            where: { id: req.user.id}
-        })
         const tickets = await Ticket.findAll({
             where: { PerformanceId: performance.id}
         })
 
         await user.addCreated(tickets.map( ticket => ticket.id))
         await user.addOwned(tickets.map( ticket => ticket.id))
+
 
 
 
