@@ -192,16 +192,23 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
             where: { id: req.user.id},
             include:[{
                 model: Ticket,
+                as: `Created`,
+                include: [{
+                    model: User,
+                    as: `Creates`
+                }]
             }, {
                 model: Ticket,
-            }, {
-                model: Ticket,
+                as: `Recorded`,
+                include: [{
+                    model: User,
+                    as: `Records`
+                }]
             }
             ]
         })
 
-        const tickets = await user.getOwned()
-        res.status(200).json(tickets);
+        res.status(200).json(user);
     }
     catch(err){
         console.error(err)

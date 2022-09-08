@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     User.associate = (db) => {
         db.User.belongsToMany(db.Ticket, {through: 'OwnTicket', as: 'Owned'} );
         db.User.belongsToMany(db.Ticket, {through: 'CreateTicket',as: 'Created'})
+        db.User.belongsToMany(db.Ticket, {through: 'Record',as: 'Recorded'})
         db.User.hasMany(db.Performance);
         db.User.hasOne(db.Communitystatus)
         db.User.hasMany(db.Comment);

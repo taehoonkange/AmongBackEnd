@@ -116,8 +116,8 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             where: { PerformanceId: performance.id}
         })
 
-        await user.addCreated(tickets.map( ticket => ticket.id))
-        await user.addOwned(tickets.map( ticket => ticket.id))
+        await influencer.addCreated(tickets.map( ticket => ticket.id))
+        await influencer.addOwned(tickets.map( ticket => ticket.id))
 
 
 
@@ -128,6 +128,11 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
         next(err)
     }
 } )
+
+/* TO DO*/
+// 행사 검색 조회
+
+
 
 // 모든 공연 정보 보기
 
