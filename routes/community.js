@@ -723,10 +723,11 @@ router.delete(`/comment/:Commentid`, isLoggedIn, async(req, res, next) => {
     #swagger.description = '댓글 삭제'
     */
     try{
+
         Comment.destroy({
-            where: {id: parseInt(req.params.Commentid, 10),
-            CommentId: parseInt(req.params.Commentid, 10) }
+            where: {id: parseInt(req.params.Commentid, 10)}
         });
+
         res.status(200).send("댓글이 삭제 되었습니다.")
     }
     catch (e) {
