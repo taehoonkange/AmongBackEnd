@@ -304,7 +304,7 @@ router.get('/:communityId/:communityStatus/:lastId/posts', async (req, res, next
                 where,
                 limit: 10,
                 order: [
-                    ['createdAt', 'DESC'],
+                    ['id', 'DESC'],
                     [Comment, 'createdAt', 'DESC'],
                 ],
                 attributes: {
@@ -313,9 +313,9 @@ router.get('/:communityId/:communityStatus/:lastId/posts', async (req, res, next
                 include: [
                     {
                         model: Communitystatus,
-                        as: `Classes`,
+                        as: `Statuses`,
                         where: { status: req.params.communityStatus },
-                        attributes: [`UserId`, `Class`]
+                        attributes: [`UserId`, `status`]
                     },
                     {
                         model: User,
@@ -337,14 +337,13 @@ router.get('/:communityId/:communityStatus/:lastId/posts', async (req, res, next
                             ],
                         }, {
                             model: Comment,
+                            through: `Ref`,
+                            as: `Refs`,
                             attributes: [`id`, `content`],
-                            include: [
-                                {
-                                    model: User,
-                                    attributes: ['id', 'nickname']
-                                }
-                            ]
-                        }
+                            include: [{
+                                model: User,
+                                attributes: ['id', 'nickname']
+                            }]}
                         ],
 
                     }, {
