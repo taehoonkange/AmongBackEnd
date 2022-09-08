@@ -132,13 +132,25 @@ router.get(`/:SearchWord/search`,  async (req, res, next) => {
 
     // const regex = /`${req.params.SearchWord}`/;
     try{
-        const performance = await Performance.findAll({
-
+        const performances = await Performance.findAll({
         })
-        if(!performance){
+
+        if(!performances){
             return res.status(403).send(`현재는 공연이 없습니다.`)
         }
-        res.status(201).json(performance)
+
+       const checkingTitle = await Promise.all(performances.map(  (p) => {
+            //regax로 중복검사
+            const word = p.title.match()
+            if(!word){
+                return null
+            }
+            return word
+
+        }))
+        const result = checkingTitle.filter((element) => element != null);
+
+        res.status(201).json(result)
     } catch(err){
         console.error(err)
         next(err)

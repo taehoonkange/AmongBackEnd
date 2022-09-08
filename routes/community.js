@@ -211,7 +211,7 @@ router.get('/:postId/post', async (req, res, next) =>{
         const reader = await User.findOne({
             where: { id : req.user.id}
         })
-        const isMember = (await reader.getCommunitystatus())
+        const isMember = await reader.getCommunitystatuses()
 
         if(!isMember){
             res.status(400).send("커뮤니티 회원이 아닙니다.")
@@ -377,7 +377,8 @@ router.get('/:communityId/:lastId/posts', async (req, res, next) => { // GET /
             const reader = await User.findOne({
                 where: { id : req.user.id}
             })
-            const isMember = (await reader.getCommunitystatus())
+
+            const isMember = (await reader.getCommunitystatuses())
             if(!isMember){
                 res.status(400).send("커뮤니티 회원이 아닙니다.")
             }
@@ -609,7 +610,7 @@ router.post('/:postId/comment', isLoggedIn, async (req, res, next) => { // POST 
 });
 
 // 대댓글 생성
-router.post('/:refId/:PostId/refcomment', isLoggedIn, async (req, res, next) => { // POST /post/1/comment
+router.post('/:refId/:postId/refcomment', isLoggedIn, async (req, res, next) => { // POST /post/1/comment
     /* 	#swagger.tags = ['Community']
        #swagger.summary = `대댓글 생성`
        #swagger.description = '대댓글 생성'
@@ -627,7 +628,8 @@ router.post('/:refId/:PostId/refcomment', isLoggedIn, async (req, res, next) => 
         })
         const ref_comment = await Comment.create({
             content: req.body.content,
-            UserId: req.user.id
+            UserId: req.user.id,
+            PostId: req.params.postId
         })
 
         await comment.addRefs(comment.id)

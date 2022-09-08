@@ -23,6 +23,10 @@
     {
       "name": "Community",
       "description": "게시물 API"
+    },
+    {
+      "name": "TicketBook",
+      "description": "티켓북 API"
     }
   ],
   "schemes": [
@@ -373,21 +377,14 @@
         }
       }
     },
-    "/performance/id/{id}": {
+    "/performance/detail": {
       "get": {
         "tags": [
           "Performance"
         ],
         "summary": "공연 상세 정보 보기",
         "description": "공연 상세 정보 보기",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
+        "parameters": [],
         "responses": {
           "201": {
             "description": "Created"
@@ -546,24 +543,6 @@
             "type": "string"
           }
         ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/ticket/ticketbook": {
-      "get": {
-        "tags": [
-          "Ticket"
-        ],
-        "summary": "티켓북",
-        "description": "티켓북",
-        "parameters": [],
         "responses": {
           "200": {
             "description": "OK"
@@ -856,7 +835,7 @@
         }
       }
     },
-    "/community/{refId}/{PostId}/refcomment": {
+    "/community/{refId}/{postId}/refcomment": {
       "post": {
         "tags": [
           "Community"
@@ -871,7 +850,7 @@
             "type": "string"
           },
           {
-            "name": "PostId",
+            "name": "postId",
             "in": "path",
             "required": true,
             "type": "string"
