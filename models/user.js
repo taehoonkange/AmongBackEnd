@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
         db.User.belongsTo(db.Ticket) // 생성자가 누구인지
         db.User.hasMany(db.Ticket, {as: `Owned`}) // 티켓들 소유자
         db.User.hasMany(db.Performance); // 행사들 개최자
-        db.User.hasMany(db.Communitystatus) // 커뮤니티 등급 수정!!!! hasmany로 바꿔야함
+        db.User.hasMany(db.Communitystatus) // 커뮤니티 등급
         db.User.hasMany(db.Comment); // 댓글들
         db.User.hasMany(db.Post); // 작성한 게시글들
         db.User.belongsToMany(db.Post, { through: 'Like', as: 'Liked' }) // 게시물 좋아요
