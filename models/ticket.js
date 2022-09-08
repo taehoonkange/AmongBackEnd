@@ -16,10 +16,15 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true
         },
+        price: {
+                type: DataTypes.STRING(7),
+                allowNull: true
+        },
         number: {
             type: DataTypes.STRING(7),
             allowNull: true
         }
+        // 꾸며졌다는 boolean 추가 예정
     }, {
         modelName: 'Ticket',
         tableName: 'tickets',
@@ -27,12 +32,14 @@ module.exports = (sequelize, DataTypes) => {
         collate: `utf8mb4_general_ci`
     });
     Ticket.associate = (db) => {
-        db.Ticket.belongsToMany(db.User, {through: 'OwnTicket', as: 'Ownes'})
-        db.Ticket.belongsToMany(db.User,{through: 'CreateTicket',as: 'Creates'})
-        db.Ticket.belongsToMany(db.User,{through: 'Record',as: 'Records'})
-        db.Ticket.belongsTo(db.Performance)
-        db.Ticket.hasOne(db.Image)
-        db.Ticket.hasOne(db.Seat)
+        // db.Ticket.belongsToMany(db.User, {through: 'OwnTicket', as: 'Ownes'}) // 소유자들 수정!!!!1
+        // db.Ticket.belongsToMany(db.User,{through: 'CreateTicket',as: 'Creates'}) // 생성자가 생성한 티켓들 수정!!!
+        db.Ticket.hasMany(db.User,{  foreignKey: `recordId`,as: 'Records'}) // 소유자 기록
+        db.Ticket.hasOne(db.User, { as : `Creater`}) // 생성자
+        db.Ticket.belongsTo(db.User) // 소유자가 어떤 티켓을 소지하는지
+        db.Ticket.belongsTo(db.Performance) // 어떤 공연의 티켓인지
+        db.Ticket.hasOne(db.Image) // 티켓 이미지
+        db.Ticket.hasOne(db.Seat) // 티켓 좌석
 
     }
 

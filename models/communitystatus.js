@@ -15,8 +15,8 @@ module.exports = (sequelize, DataTypes) => {
         collate: `utf8_general_ci`
     });
     Communitystatus.associate = (db) => {
-        db.Communitystatus.belongsTo(db.Community)
-        db.Communitystatus.belongsTo(db.User)
+        db.Communitystatus.belongsTo(db.Community) // 어느 커뮤니티
+        db.Communitystatus.belongsTo(db.User) // 어느 유저
 
     }
 

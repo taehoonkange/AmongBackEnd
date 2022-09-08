@@ -31,6 +31,7 @@ const doc = {
             title: "행사 제목 입력",
             place: "행사 장소 입력",
             time: "행사 시간",
+            limitedAge: "제한된 나이",
             term_start_at: "YYYY-MM-DD HH:MM:SS",
             term_end_at: "YYYY-MM-DD HH:MM:SS",
             start_at: "YYYY-MM-DD HH:MM:SS",

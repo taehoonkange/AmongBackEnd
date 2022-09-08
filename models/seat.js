@@ -4,10 +4,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(8),
             allowNull: false
         },
-        price:{
-            type: DataTypes.FLOAT(8),
-            allowNull: false
-        },
         number: {
             type: DataTypes.STRING(7),
             allowNull: true
@@ -20,8 +16,8 @@ module.exports = (sequelize, DataTypes) => {
         collate: `utf8mb4_general_ci`
     });
     Seat.associate = (db) => {
-        db.Seat.belongsTo(db.Performance)
-        db.Seat.belongsTo(db.Ticket)
+        db.Seat.belongsTo(db.Performance) // 어느 공연인지
+        db.Seat.belongsTo(db.Ticket) // 어떤 티켓인지
     }
 
     return Seat;

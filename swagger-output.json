@@ -348,6 +348,31 @@
         }
       }
     },
+    "/performance/{SearchWord}/search": {
+      "get": {
+        "tags": [
+          "Performances"
+        ],
+        "summary": "모든 공연 정보 보기",
+        "description": "모든 공연 정보 보기",
+        "parameters": [
+          {
+            "name": "SearchWord",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
     "/performance/id/{id}": {
       "get": {
         "tags": [
@@ -426,7 +451,7 @@
         }
       }
     },
-    "/ticket/{ticketId}/register": {
+    "/ticket/{price}/{ticketId}/register": {
       "patch": {
         "tags": [
           "Ticket"
@@ -434,6 +459,12 @@
         "summary": "티켓 판매 등록",
         "description": "티켓 판매 등록",
         "parameters": [
+          {
+            "name": "price",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
           {
             "name": "ticketId",
             "in": "path",
@@ -1053,7 +1084,11 @@
     },
     "/influencer/search": {
       "get": {
-        "description": "",
+        "tags": [
+          "Influencer"
+        ],
+        "summary": "인플루언서들 보기",
+        "description": "인플루언서들 보기",
         "parameters": [],
         "responses": {
           "200": {
@@ -1081,6 +1116,10 @@
         "time": {
           "type": "string",
           "example": "행사 시간"
+        },
+        "limitedAge": {
+          "type": "string",
+          "example": "제한된 나이"
         },
         "term_start_at": {
           "type": "string",

@@ -40,16 +40,7 @@ router.get(`/:communityId/checkStatus`, async ( req, res, next) => {
     */
     try{
         const tickets = await Ticket.findAll({
-            where: { status: `USED` },
-
-            include: [
-                {
-                    model: User,
-                    through:{
-                        where: { UserId: req.user.id}
-                    },
-                    as: `Ownes`,
-                }]
+            where: { status: `USED` }
         })
 
 // 게시물에 동일한 메소드 삭제 예정 왜냐하면 이 과정 후에 게시물 생성하기 때문에

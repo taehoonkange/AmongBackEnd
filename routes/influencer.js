@@ -113,6 +113,10 @@ router.post(`/register`, isLoggedIn, upload.none(), async (req, res, next) => {
 // 인플루언서들 조회
 
 router.get(`/search`, async(req, res, next) =>{
+    /* 	#swagger.tags = ['Influencer']
+     #swagger.summary = `인플루언서들 보기`
+     #swagger.description = '인플루언서들 보기'
+     */
     try{
         const influencers = await User.findAll({
             where: { userType: `INFLUENCER`},

@@ -72,12 +72,13 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             title: req.body.title,
             place: req.body.place,
             time: req.body.time,
+            limitedAge: req.body.limitedAge,
             term_start_at: req.body.term_start_at,
             term_end_at: req.body.term_end_at,
             start_at: req.body.start_at,
             end_at: req.body.end_at,
             description: req.body.description,
-            madeBy: req.user.id
+            UserId: req.user.id
         })
         await performance.setImage(image.id)
         let numberCount = 1;
@@ -91,18 +92,20 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                 // 티켓 db 생성
                 const ticket = await Ticket.create({
                     name: req.body.title,
-                    number: parseInt(`${numberCount}`),
+                    price: info.price,
                     PerformanceId: performance.id,
                     description: req.body.description
                 })
 
-                await ticket.setImage(image.id)
-                await ticket.addRecords(req.user.id)
+                await ticket.setImage(image.id) // 티켓에 이미지 넣기
+                await ticket.addRecords(req.user.id) // 티켓 소유자 기록 넣기
+                await influencer.addOwned(ticket.id) // 티켓 소유자 넣기
+                await ticket.setCreater(influencer.id) // 티켓 생성자 넣기
+                //
 
                 //좌석 db 생성
                 await Seat.create({
                     class: info.class,
-                    price: info.price,
                     number: parseInt(`${numberCount}`),
                     PerformanceId: performance.id,
                     TicketId: ticket.id
@@ -111,16 +114,6 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                 numberCount += 1;
             }
         }))
-
-        const tickets = await Ticket.findAll({
-            where: { PerformanceId: performance.id}
-        })
-
-        await influencer.addCreated(tickets.map( ticket => ticket.id))
-        await influencer.addOwned(tickets.map( ticket => ticket.id))
-
-
-
 
         res.status(200).send("공연 정보 생성이 완료 되었습니다.")
     } catch(err){
@@ -131,7 +124,25 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
 
 /* TO DO*/
 // 행사 검색 조회
+router.get(`/:SearchWord/search`,  async (req, res, next) => {
+    /* 	#swagger.tags = ['Performances']
+        #swagger.summary = `모든 공연 정보 보기`
+        #swagger.description = '모든 공연 정보 보기'
+        */
 
+    // const regex = /`${req.params.SearchWord}`/;
+    try{
+        const performance = await Performance.findAll({
+        })
+        if(!performance){
+            return res.status(403).send(`현재는 공연이 없습니다.`)
+        }
+        res.status(201).json(performance)
+    } catch(err){
+        console.error(err)
+        next(err)
+    }
+} )
 
 
 // 모든 공연 정보 보기

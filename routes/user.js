@@ -2,7 +2,7 @@ const express = require(`express`)
 const passport = require(`passport`)
 const path = require(`path`)
 const multer = require(`multer`)
-const { User, Ticket } = require(`../models`)
+const { User, Ticket, Seat, Image } = require(`../models`)
 const { isLoggedIn, isNotLoggedIn} = require(`./middlewares`)
 const router = express.Router()
 const fs = require(`fs`)
@@ -68,21 +68,8 @@ router.post(`/login` , isNotLoggedIn,(req, res, next) => {
             const fullUser = await User.findOne({
                 where: { id: user.id},
                 attributes: {
-                    exclude: [ `wallet_address` ]
-                },
-                include: [{
-                    model: Ticket,
-                    through: `CreateTicket`,
-                    as: `Created`,
-                    attributes: [`id`, `name`, `number`]
-                },
-                    {
-                        model: Ticket,
-                        through: `OwnTicket`,
-                        as: `Owned`,
-                        attributes: [`id`, `name`, `number`]
-                    },
-                ]
+                    exclude: [ `wallet_address`, `CreaterId`, `recordId` ]
+                }
             })
             return res.status(200).json(fullUser);
         })
@@ -157,20 +144,10 @@ router.get(`/id/:id`, async (req, res, next) => {
             return res.status(403).send(`존재 하지 않는 유저입니다.`)
         }
         const fullUser = await User.findOne({
-            where: { id: user.id},
-            attributes: {
-                exclude: [ `wallet_address` ]
-            },
-            include: [
-                {
-                model: Ticket,
-                as: `Created`
-            },
-                {
-                    model: Ticket,
-                    as: `Owned`
-                },
-            ]
+                where: {id: user.id},
+                attributes: {
+                    exclude: [`wallet_address`, `CreaterId`, `recordId`]
+                }
         })
         res.status(200).json(fullUser)
     }
@@ -190,22 +167,24 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
     try{
         const user = await User.findOne({
             where: { id: req.user.id},
+            attributes: {
+                exclude: [`wallet_address`, `CreaterId`, `recordId`]
+            },
             include:[{
                 model: Ticket,
-                as: `Created`,
+                as: `Owned`,
+                attributes: {
+                    exclude: [`UserId`]
+                },
                 include: [{
-                    model: User,
-                    as: `Creates`
+                    model: Seat,
+                    attributes: [`class`,`number`]
+                },{
+                    model: Ticket,
+                    as: `Records`,
+                    attributes: [`id`, `nickname`]
                 }]
-            }, {
-                model: Ticket,
-                as: `Recorded`,
-                include: [{
-                    model: User,
-                    as: `Records`
-                }]
-            }
-            ]
+            }]
         })
 
         res.status(200).json(user);

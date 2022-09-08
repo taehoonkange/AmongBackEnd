@@ -13,7 +13,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        // 시간만 전달 하기
+        limitedAge: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
         term_start_at:{
             type: DataTypes.DATE,
             allowNull: false
@@ -42,10 +45,10 @@ module.exports = (sequelize, DataTypes) => {
         collate: `utf8mb4_general_ci`
     });
     Performance.associate = (db) => {
-        db.Performance.hasMany(db.Seat)
-        db.Performance.hasMany(db.Ticket)
-        db.Performance.hasOne(db.Image)
-        db.Performance.belongsTo(db.User, {foreignKey: `madeBy`})
+        db.Performance.hasMany(db.Seat) // 공연 좌석들
+        db.Performance.hasMany(db.Ticket) // 공연 티켓들
+        db.Performance.hasOne(db.Image) // 공연 이미지
+        db.Performance.belongsTo(db.User) // 누가 개최했는지
     }
 
     return Performance;

@@ -1,6 +1,6 @@
 const express = require(`express`)
 
-const { Ticket, User } = require(`../models`)
+const { Ticket, User, Image } = require(`../models`)
 
 const {isLoggedIn} = require("./middlewares");
 
@@ -10,6 +10,8 @@ const router = express.Router()
 
 
 // 티켓 상세 정보 보기
+
+// 소유자, 생성자
 router.get(`/:id/detail`,  async (req, res, next) => {
     /* 	#swagger.tags = ['Ticket']
         #swagger.summary = `티켓 상세 정보 보기`
@@ -18,11 +20,23 @@ router.get(`/:id/detail`,  async (req, res, next) => {
     try{
         const ticket = await Ticket.findOne({
             where: { id: req.params.id},
-            include:[
-                {
-                    model: User,
-                    as: `Ownes`
-                }
+            include:[{
+                model: User,
+                as: `Records`,
+                attributes: [`id`, `nickname`],
+                include:[{
+                    model: Image,
+                    attributes: [`src`]
+                }]
+                },{
+                model: User,
+                as: `Creater`,
+                attributes: [`id`, `nickname`],
+                include:[{
+                    model: Image,
+                    attributes: [`src`]
+                }]
+            }
             ]
         })
     if(!ticket){
@@ -42,20 +56,14 @@ router.patch(`/:ticketId/cancel`, isLoggedIn, async (req, res, next) => {
     */
     try{
         const ticket = await Ticket.findOne({
-            where: { id: req.params.ticketId},
-            include:[{
-                model:User,
-                as: `Ownes`
-            }]
+            where: { id: req.params.ticketId}
         })
 
         if(ticket.status === `OWNED`){
             res.status(400).send("판매 등록한 티켓이 아닙니다.")
         }
 
-        const ownerId = (await ticket.Ownes)[0].id
-
-        if (ownerId !== req.user.id) {
+        if ( ticket.UserId !== req.user.id) {
             await Ticket.update({
                 status: `OWNED`
             }, {where: {id: ticket.id}})
@@ -75,7 +83,8 @@ router.patch(`/:ticketId/cancel`, isLoggedIn, async (req, res, next) => {
     }
 })
 // 티켓 판매 등록
-router.patch(`/:ticketId/register`, isLoggedIn, async (req, res, next) => {
+
+router.patch(`/:price/:ticketId/register`, isLoggedIn, async (req, res, next) => {
     /* 	#swagger.tags = ['Ticket']
     #swagger.summary = `티켓 판매 등록`
     #swagger.description = '티켓 판매 등록'
@@ -84,20 +93,16 @@ router.patch(`/:ticketId/register`, isLoggedIn, async (req, res, next) => {
 
         const ticket = await Ticket.findOne({
             where: { id: req.params.ticketId},
-            include:[{
-                model:User,
-                as: `Ownes`
-            }]
             })
 
         if(ticket.status !== `OWNED`){
             res.status(400).send("이미 판매 중인 티켓입니다.")
         }
         else {
-            const isOwned = ticket.Ownes
-            if (isOwned[0].id === req.user.id) {
+            if (ticket.UserId === req.user.id) {
                 await Ticket.update({
-                    status: `SALE`
+                    status: `SALE`,
+                    price: req.params.price
                 }, {where: {id: ticket.id}})
 
                 res.status(200).send("티켓 판매 등록을 성공하였습니다.")
@@ -125,11 +130,7 @@ router.patch(`/:ticketId/buy`, isLoggedIn, async (req, res, next) => {
     try{
         const saleTicket = await Ticket.findOne({
             where: {id: req.params.ticketId,
-                status: `SALE`},
-            include: [{
-                model: User,
-                as: `Ownes`
-            }]
+                status: `SALE`}
         })
         // 티켓 구매 여부
         if(!saleTicket){
@@ -137,19 +138,16 @@ router.patch(`/:ticketId/buy`, isLoggedIn, async (req, res, next) => {
         }
 
         // 자기 자신 티켓 사면 안됨
-        const ownerId = (await saleTicket.getOwnes({attributes: [`id`]}))[0].id
-        if( req.user.id === ownerId){
+        if( req.user.id === saleTicket.UserId){
             res.status(400).send(" 자기 티켓을 구매할 수 없습니다.")
         }
+        // 구매, 소유권 양도
         else{
             await Ticket.update({
-                status: `OWNED`
+                status: `OWNED`,
+                UserId: req.user.id
             }, { where: { id: saleTicket.id}})
         }
-
-        // 소유권 양도
-        await saleTicket.removeOwnes(ownerId)
-        await saleTicket.addOwnes(req.user.id)
 
         //소유자 기록
         await saleTicket.addRecords(req.user.id)
@@ -161,6 +159,7 @@ router.patch(`/:ticketId/buy`, isLoggedIn, async (req, res, next) => {
     }
 })
 
+
 // 리셀 티켓 보기
 router.get(`/resale`, async (req, res, next) => {
     /* 	#swagger.tags = ['Ticket']
@@ -170,18 +169,9 @@ router.get(`/resale`, async (req, res, next) => {
     try{
 
         const tickets = await Ticket.findAll({
-                where: {status: `SALE`},
-                include:[{
-                    model: User,
-                    as: `Ownes`
-                },{
-                    model: User,
-                    as: `Creates`
-                }]
+                where: {status: `SALE`}
             })
 
-
-        console.log(tickets)
         if(tickets){
             res.status(200).json(tickets)
         }
@@ -216,21 +206,5 @@ router.patch(`/:ticketId/useTicket`, isLoggedIn, async (req, res, next) => {
     }
 })
 
-router.get(`/ticketbook`, isLoggedIn, async (req, res, next) => {
-    /* 	#swagger.tags = ['Ticket']
-    #swagger.summary = `티켓북`
-    #swagger.description = '티켓북'
-    */
-    try{
-        const ticekts = await Ticket.findAll({
-            where: { id: req.user.id}
-        })
 
-        res.status(200).json(ticekts)
-    }
-    catch (e) {
-        console.error(e)
-        next(e)
-    }
-})
 module.exports = router
