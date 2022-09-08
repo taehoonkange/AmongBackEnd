@@ -395,7 +395,7 @@ router.get('/:communityId/:lastId/posts', async (req, res, next) => { // GET /
                 limit: 10,
                 order: [
                     ['id', 'DESC'],
-                    [Comment, 'createdAt', 'DESC'],
+                    [Comment, 'id', 'DESC'],
                 ],
                 include: [
                     {
@@ -610,7 +610,7 @@ router.post('/:postId/comment', isLoggedIn, async (req, res, next) => { // POST 
 });
 
 // 대댓글 생성
-router.post('/:refId/:postId/refcomment', isLoggedIn, async (req, res, next) => { // POST /post/1/comment
+router.post('/:refId/refcomment', isLoggedIn, async (req, res, next) => { // POST /post/1/comment
     /* 	#swagger.tags = ['Community']
        #swagger.summary = `대댓글 생성`
        #swagger.description = '대댓글 생성'
@@ -629,10 +629,9 @@ router.post('/:refId/:postId/refcomment', isLoggedIn, async (req, res, next) => 
         const ref_comment = await Comment.create({
             content: req.body.content,
             UserId: req.user.id,
-            PostId: req.params.postId
         })
 
-        await comment.addRefs(comment.id)
+        await comment.addRefs(ref_comment.id)
         const FullRefComment = await Comment.findOne({
             where : { id: ref_comment.id}
         })

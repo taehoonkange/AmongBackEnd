@@ -835,7 +835,7 @@
         }
       }
     },
-    "/community/{refId}/{postId}/refcomment": {
+    "/community/{refId}/refcomment": {
       "post": {
         "tags": [
           "Community"
@@ -845,12 +845,6 @@
         "parameters": [
           {
             "name": "refId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "postId",
             "in": "path",
             "required": true,
             "type": "string"
