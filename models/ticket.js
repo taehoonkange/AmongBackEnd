@@ -20,10 +20,11 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING(7),
                 allowNull: true
         },
-        number: {
-            type: DataTypes.STRING(7),
-            allowNull: true
+        coordinate: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
+
         // 꾸며졌다는 boolean 추가 예정
     }, {
         modelName: 'Ticket',
