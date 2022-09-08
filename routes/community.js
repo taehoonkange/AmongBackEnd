@@ -1,6 +1,6 @@
 const express = require(`express`)
 const { Op } = require(`sequelize`)
-const { Comment, User, Post, Image, Community, Communitystatus, Ticket, Limiteduser  } = require(`../models`)
+const { Comment, User, Post, Image, Community, Communitystatus, Ticket, Limiteduser, sequelize  } = require(`../models`)
 const multer = require(`multer`)
 const path = require(`path`)
 const fs = require(`fs`)
@@ -224,7 +224,8 @@ router.get('/:postId/post', async (req, res, next) =>{
         }
         const post = await Post.findOne({
             where: { id: req.params.postId},
-            order: [[Comment,'createdAt', 'DESC'],
+            order: [
+                [Comment,'id', 'DESC'],
             ],
             include: [{
                 model: User,
@@ -727,6 +728,20 @@ router.delete(`/comment/:Commentid`, isLoggedIn, async(req, res, next) => {
         Comment.destroy({
             where: {id: parseInt(req.params.Commentid, 10)}
         });
+
+        // 댓글에 달린 대댓글까지 삭제
+        const comments = await sequelize.models.Ref.findAll({
+            where: { CommentId: req.params.Commentid},
+            attributes: [`RefId`]
+        })
+
+        console.log(comments)
+        await Promise.all(comments.map( comment =>{
+            Comment.destroy({
+                where: {id: parseInt(comment.RefId, 10)}
+            });
+        }))
+
 
         res.status(200).send("댓글이 삭제 되었습니다.")
     }
