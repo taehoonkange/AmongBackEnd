@@ -457,8 +457,8 @@ router.get('/:communityId/:lastId/posts', async (req, res, next) => { // GET /
                 return {post, "likeCount": post.Likers.length}
             }))
             console.log(`FullPosts 값`, FullPosts)
-            const fixedFuullPosted = FullPosts.filter((element) => element != null);
-            res.status(200).json(fixedFuullPosted);
+            const fixedFullPosted = FullPosts.filter((element) => element != null);
+            res.status(200).json(fixedFullPosted);
         }
         else{
             res.status(400).send("존재하지 않은 커뮤니티입니다.");
