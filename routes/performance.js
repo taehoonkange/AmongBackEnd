@@ -133,6 +133,7 @@ router.get(`/:SearchWord/search`,  async (req, res, next) => {
     // const regex = /`${req.params.SearchWord}`/;
     try{
         const performance = await Performance.findAll({
+
         })
         if(!performance){
             return res.status(403).send(`현재는 공연이 없습니다.`)
@@ -154,6 +155,14 @@ router.get(`/`,  async (req, res, next) => {
         */
     try{
         const performance = await Performance.findAll({
+            include:[{
+                model: Ticket,
+                include:[{
+                    model: Seat,
+                    attributes: [`class`, `number`]
+                }]
+            }
+            ]
         })
         if(!performance){
             return res.status(403).send(`현재는 공연이 없습니다.`)
@@ -162,18 +171,26 @@ router.get(`/`,  async (req, res, next) => {
     } catch(err){
         console.error(err)
         next(err)
-    }
+    }세
 } )
 
 // 공연 상세 정보 보기
 
-router.get(`/id/:id`,  async (req, res, next) => {
+router.get(`/detail`,  async (req, res, next) => {
     /* 	#swagger.tags = ['Performance']
     #swagger.summary = `공연 상세 정보 보기`
         #swagger.description = '공연 상세 정보 보기' */
     try{
         const performance = await Performance.findOne({
-            where: { id: req.params.id}
+            where: { id: req.params.id},
+            include:[{
+                model: Ticket,
+                include:[{
+                    model: Seat,
+                    attributes: [`class`, `number`]
+                }]
+            }
+            ]
         })
         if(!performance){
             return res.status(403).send(`존재하지 않는 공연입니다.`)
