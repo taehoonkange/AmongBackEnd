@@ -140,7 +140,7 @@ router.get(`/:SearchWord/search`,  async (req, res, next) => {
 
        const checkingTitle = await Promise.all(performances.map(  (performance) => {
            //regax로 중복검사
-           const regex = new RegExp(`${req.params.SearchWord}`, "g")
+           const regex = new RegExp(`${req.params.SearchWord.trim()}`, "g")
            const isExist =performance.title.match(regex)
            console.log(isExist)
 
