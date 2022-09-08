@@ -122,7 +122,6 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
     }
 } )
 
-/* TO DO*/
 // 행사 검색 조회
 router.get(`/:SearchWord/search`,  async (req, res, next) => {
     /* 	#swagger.tags = ['Performances']
@@ -139,14 +138,16 @@ router.get(`/:SearchWord/search`,  async (req, res, next) => {
             return res.status(403).send(`현재는 공연이 없습니다.`)
         }
 
-       const checkingTitle = await Promise.all(performances.map(  (p) => {
-            //regax로 중복검사
-            const word = p.title.match()
-            if(!word){
-                return null
-            }
-            return word
+       const checkingTitle = await Promise.all(performances.map(  (performance) => {
+           //regax로 중복검사
+           const regex = new RegExp(`${req.params.SearchWord}`, "g")
+           const isExist =performance.title.match(regex)
+           console.log(isExist)
 
+           if(!isExist){
+                return null
+           }
+           return performance
         }))
         const result = checkingTitle.filter((element) => element != null);
 
