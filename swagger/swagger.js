@@ -21,6 +21,11 @@ const doc = {
         {
             name: 'Community',
             description: '게시물 API',
+        },
+
+        {
+            name: 'TicketBook',
+            description: '티켓북 API',
         }
 
     ],
