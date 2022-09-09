@@ -42,7 +42,7 @@ const doc = {
             start_at: "YYYY-MM-DD HH:MM:SS",
             end_at: "YYYY-MM-DD HH:MM:SS",
             description: "행사 상세 설명",
-            infos: [{class: "좌석 등급", price: "좌석 가격", number: "좌석 갯수"},],
+            tickets: [{class: "좌석 등급", price: "좌석 가격", number: "좌석 번호"},],
             image: "이미지"
         },
 
