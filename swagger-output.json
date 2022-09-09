@@ -1072,6 +1072,64 @@
           }
         }
       }
+    },
+    "/ticketbook/{ticketId}/coordinate": {
+      "patch": {
+        "tags": [
+          "TicketBook"
+        ],
+        "summary": "티켓 꾸미기",
+        "description": "티켓 꾸미기",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "image": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/ticketbook/tickets": {
+      "get": {
+        "tags": [
+          "TicketBook"
+        ],
+        "summary": "티켓북",
+        "description": "티켓북",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
     }
   },
   "definitions": {
