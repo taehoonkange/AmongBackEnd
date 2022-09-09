@@ -7,7 +7,8 @@ const morgan = require(`morgan`)
 const path = require(`path`)
 const dotenv = require(`dotenv`)
 const logger = require(`./logger`)
-
+const hpp = require('hpp');
+const helmet = require('helmet');
 
 const userRouter = require(`./routes/user`)
 const ticketRouter = require(`./routes/ticket`)
@@ -37,6 +38,8 @@ passportConfigure()
 
 if(process.env.NODE_ENV === `production`){
     app.use(morgan(`combined`))
+    app.use(hpp());
+    app.use(helmet({ contentSecurityPolicy: false }));
 }else{
     app.use(morgan(`dev`))
 }
