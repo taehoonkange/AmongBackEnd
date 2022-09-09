@@ -24,14 +24,19 @@ const app = express()
 
 
 
-db.sequelize.sync({force: true})
+db.sequelize.sync({force: false})
     .then(() =>{
         console.log(`db 연결 성공`)
     })
     .catch(console.error)
 passportConfigure()
 
-app.use(morgan(`dev`))
+if(process.env.NODE_ENV === `production`){
+    app.use(morgan(`combined`))
+}else{
+    app.use(morgan(`dev`))
+}
+
 app.use(cors({
     // frontserver address
     origin: true,
@@ -42,13 +47,22 @@ app.use(`/`, express.static(path.join(__dirname, `uploads`)))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use(session({
+const sessionOption = {
     saveUninitialized: false,
     resave: false,
-    secret: process.env.COOKIE_SECRET
-}))
+    secret: process.env.COOKIE_SECRET,
+    cookie: {
+        httpOnly: true,
+        secure: false
+    }
+}
+if ( process.env.NODE_ENV === `production`){
+    sessionOption.proxy = true;
+    // sessionOption.cookie.secure = true;
+}
+
 app.use(passport.initialize())
-app.use(passport.session())
+app.use(session(sessionOption))
 
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
