@@ -311,8 +311,8 @@
         "tags": [
           "Performance"
         ],
-        "summary": "공연 정보 저장",
-        "description": "공연 정보 저장",
+        "summary": "공연 생성",
+        "description": "공연 생성",
         "parameters": [
           {
             "name": "performance",
@@ -357,8 +357,8 @@
         "tags": [
           "Performances"
         ],
-        "summary": "모든 공연 정보 보기",
-        "description": "모든 공연 정보 보기",
+        "summary": "행사 검색 조회",
+        "description": "행사 검색 조회",
         "parameters": [
           {
             "name": "SearchWord",
@@ -377,14 +377,21 @@
         }
       }
     },
-    "/performance/detail": {
+    "/performance/{performerceId}/detail": {
       "get": {
         "tags": [
           "Performance"
         ],
         "summary": "공연 상세 정보 보기",
         "description": "공연 상세 정보 보기",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "performerceId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "responses": {
           "201": {
             "description": "Created"

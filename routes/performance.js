@@ -42,12 +42,11 @@ router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res) => {
     res.json(req.file.filename)
 })
 
-//공연 정보 저장
-// 수정 필요
+//공연 생성
 router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
     /* 	#swagger.tags = ['Performance']
-        #swagger.summary = `공연 정보 저장`
-        #swagger.description = '공연 정보 저장'
+        #swagger.summary = `공연 생성`
+        #swagger.description = '공연 생성'
         #swagger.parameters['performance'] ={
             in: `body`,
             description: `공연 바디 정보`,
@@ -81,14 +80,10 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             UserId: req.user.id
         })
         await performance.setImage(image.id)
-        let numberCount = 1;
-        let end = 0;
 
-        await Promise.all( req.body.infos.map( async (info)=>{
-            end += parseInt(info.number);
-            let fixed_end = end + 1
-            while(numberCount !== fixed_end){
-
+        await Promise.all( req.body.tickets.map( async (info)=>{
+            let numberCount = 0;
+            while(numberCount !== parseInt(info.number,10)){
                 // 티켓 db 생성
                 const ticket = await Ticket.create({
                     name: req.body.title,
@@ -102,11 +97,11 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                 await influencer.addOwned(ticket.id) // 티켓 소유자 넣기
                 await ticket.setCreater(influencer.id) // 티켓 생성자 넣기
                 //
-
+                console.log("티켓 생성", info)
                 //좌석 db 생성
                 await Seat.create({
                     class: info.class,
-                    number: parseInt(`${numberCount}`),
+                    number: info.number,
                     PerformanceId: performance.id,
                     TicketId: ticket.id
                 })
@@ -125,8 +120,8 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
 // 행사 검색 조회
 router.get(`/:SearchWord/search`,  async (req, res, next) => {
     /* 	#swagger.tags = ['Performances']
-        #swagger.summary = `모든 공연 정보 보기`
-        #swagger.description = '모든 공연 정보 보기'
+        #swagger.summary = `행사 검색 조회`
+        #swagger.description = '행사 검색 조회'
         */
 
     // const regex = /`${req.params.SearchWord}`/;
@@ -184,18 +179,18 @@ router.get(`/`,  async (req, res, next) => {
     } catch(err){
         console.error(err)
         next(err)
-    }세
+    }
 } )
 
 // 공연 상세 정보 보기
 
-router.get(`/detail`,  async (req, res, next) => {
+router.get(`/:performerceId/detail`,  async (req, res, next) => {
     /* 	#swagger.tags = ['Performance']
     #swagger.summary = `공연 상세 정보 보기`
         #swagger.description = '공연 상세 정보 보기' */
     try{
         const performance = await Performance.findOne({
-            where: { id: req.params.id},
+            where: { id: req.params.performerceId},
             include:[{
                 model: Ticket,
                 include:[{
