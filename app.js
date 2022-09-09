@@ -9,6 +9,7 @@ const dotenv = require(`dotenv`)
 const logger = require(`./logger`)
 const hpp = require('hpp');
 const helmet = require('helmet');
+
 const redis = require(`redis`);
 const RedisStore = require(`connect-redis`)(session);
 
