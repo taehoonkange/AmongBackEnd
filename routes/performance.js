@@ -101,7 +101,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                 //좌석 db 생성
                 await Seat.create({
                     class: info.class,
-                    number: parseInt(`${numberCount}`),
+                    number: info.number,
                     PerformanceId: performance.id,
                     TicketId: ticket.id
                 })
