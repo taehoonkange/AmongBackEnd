@@ -379,15 +379,16 @@ router.get('/:communityId/:lastId/posts', async (req, res, next) => { // GET /
                 where: { id : req.user.id}
             })
 
-            const isMember = (await reader.getCommunitystatuses())
+            const isMember = (await reader.getCommunitystatuses({ where: { id: req.params.communityId} }))
             if(!isMember){
                 res.status(400).send("커뮤니티 회원이 아닙니다.")
             }
-
+            // 인플루언서 아이디
+            const influencerId = community.UserId
             // 멤버의 등급
             const memberStatus = isMember.status
             console.log(`멤버 등급`, memberStatus)
-            const where = {}
+            const where = {UserId: influencerId}
             if(parseInt(req.params.lastId, 10)) {
                 where.id = {[Op.lt]: parseInt(req.params.lastId, 10)}
             }
