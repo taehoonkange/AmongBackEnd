@@ -9,6 +9,8 @@ const dotenv = require(`dotenv`)
 const logger = require(`./logger`)
 const hpp = require('hpp');
 const helmet = require('helmet');
+const redis = require(`redis`);
+const RedisStore = require(`connect-redis`)(session);
 
 const userRouter = require(`./routes/user`)
 const ticketRouter = require(`./routes/ticket`)
@@ -26,6 +28,11 @@ const swaggerUi = require('swagger-ui-express')
 const swaggerFile = require('./swagger-output')
 
 dotenv.config()
+
+const redisClient = redis.createClient({
+    url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+    password: process.env.REDIS_PASSWORD,
+})
 const app = express()
 
 
@@ -63,6 +70,7 @@ app.use(session({
         httpOnly: true,
         secure: false
     },
+    store: new RedisStore({client: redisClient})
 
 }));
 
