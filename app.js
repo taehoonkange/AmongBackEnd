@@ -5,6 +5,10 @@ const cookieParser = require(`cookie-parser`)
 const passport = require(`passport`)
 const morgan = require(`morgan`)
 const path = require(`path`)
+const dotenv = require(`dotenv`)
+const logger = require(`./logger`)
+
+
 const userRouter = require(`./routes/user`)
 const ticketRouter = require(`./routes/ticket`)
 const performanceRouter = require(`./routes/performance`)
@@ -20,8 +24,8 @@ const passportConfigure = require(`./passport`)
 const swaggerUi = require('swagger-ui-express')
 const swaggerFile = require('./swagger-output')
 
+dotenv.config()
 const app = express()
-
 
 
 db.sequelize.sync({force: false})
@@ -47,22 +51,21 @@ app.use(`/`, express.static(path.join(__dirname, `uploads`)))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser(process.env.COOKIE_SECRET));
-const sessionOption = {
+
+app.use(session({
     saveUninitialized: false,
     resave: false,
     secret: process.env.COOKIE_SECRET,
     cookie: {
         httpOnly: true,
         secure: false
-    }
-}
-if ( process.env.NODE_ENV === `production`){
-    sessionOption.proxy = true;
-    // sessionOption.cookie.secure = true;
-}
+    },
+
+}));
+
 
 app.use(passport.initialize())
-app.use(session(sessionOption))
+app.use(passport.session());
 
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
@@ -73,6 +76,14 @@ app.use(`/community`, communityRouter)
 app.use(`/ticket`, ticketRouter)
 app.use(`/influencer`, influencerRouter)
 app.use(`/ticketbook`, ticketbookRouter)
+
+app.use((req, res, next) =>{
+    const error = new Error (`${req.method} ${req.url} 라우터가 없습니다.`)
+    error.status = 404;
+    log.info(`hello`)
+    logger.error(error.message);
+    next(error)
+});
 
 app.listen(3065, () =>{
     console.log(`서버 실행 중..`)
