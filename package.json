@@ -8,6 +8,7 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
+    "csurf": "^1.11.0",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "express-session": "^1.17.3",
@@ -26,6 +27,7 @@
     "nodemon": "^2.0.19"
   },
   "scripts": {
+    "start": "NODE_ENV=production PORT=80 node app",
     "dev": "nodemon app",
     "swagger": "node swagger/swagger.js"
   }
