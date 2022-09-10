@@ -106,4 +106,4 @@ dist
 # swagger
 swagger-output.json
 
-among-backend.pem
+*.pem
