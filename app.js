@@ -10,7 +10,7 @@ const logger = require(`./logger`)
 const hpp = require('hpp');
 const helmet = require('helmet');
 
-const redis = require(`redis`);
+const redis = require('redis');
 const RedisStore = require(`connect-redis`)(session);
 
 const userRouter = require(`./routes/user`)
@@ -34,6 +34,10 @@ const redisClient = redis.createClient({
     url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
     password: process.env.REDIS_PASSWORD,
 })
+redisClient.on('error', err => {
+    console.log('Error ' + err);
+});
+
 const app = express()
 
 
@@ -92,7 +96,7 @@ app.use(`/ticketbook`, ticketbookRouter)
 app.use((req, res, next) =>{
     const error = new Error (`${req.method} ${req.url} 라우터가 없습니다.`)
     error.status = 404;
-    log.info(`hello`)
+    logger.info(`hello`)
     logger.error(error.message);
     next(error)
 });
