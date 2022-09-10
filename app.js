@@ -99,6 +99,10 @@ app.use((req, res, next) =>{
     next(error)
 });
 
+app.get(`/`, (res, req) =>{
+    res.send(`Among Backend`)
+})
+
 app.listen(3065, () =>{
     console.log(`서버 실행 중..`)
 })
