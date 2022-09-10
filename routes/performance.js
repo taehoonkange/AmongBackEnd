@@ -36,8 +36,13 @@ const upload = multer({
 //공연 사진 저장
 router.post( `/image`, isLoggedIn, upload.single(`image`), async (req, res) => {
     /* 	#swagger.tags = ['Performance']
-    #swagger.summary = `공연 사진 저장`
-        #swagger.description = '공연 사진 저장' */
+        #swagger.summary = `공연 사진 저장`
+    	#swagger.parameters[`image`] = {
+            in: 'formData',
+            type: 'file',
+            description: '공연 사진 저장'
+
+    } */
     console.log(req.file);
     res.json(req.file.filename)
 })
@@ -63,9 +68,17 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
         if(!influencer){
             res.status(400).send("인플루언서만 등록 가능합니다.")
         }
-        const image = await Image.create({
-            src: req.body.image
-        })
+
+        let image = {}
+        if (req.body.image) {
+             // 이미지를 하나만 올리면 image: 제로초.png
+            image = await Image.create({
+                src: req.body.image
+            })
+
+        }
+
+
         // 공연 db 생성
         const performance = await Performance.create({
             title: req.body.title,
@@ -79,7 +92,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             description: req.body.description,
             UserId: req.user.id
         })
-        await performance.setImage(image.id)
+        await performance.setImage(image)
 
         await Promise.all( req.body.tickets.map( async (info)=>{
             let numberCount = 0;
