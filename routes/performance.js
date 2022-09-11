@@ -79,6 +79,17 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
         }
 
 
+        let repeatCount = 1
+        //날짜 계산
+        if (req.body.term_start_at && req.body.term_end_at){
+            const startTerm = new Date(req.body.term_start_at).getDate()
+            const endTerm = new Date(req.body.term_end_at).getDate()
+            const diffDate = endTerm - startTerm
+            repeatCount += Math.abs(diffDate / (1000 * 60 * 60 * 24));
+        }
+        console.log("반복 횟수", repeatCount)
+        //
+
         // 공연 db 생성
         const performance = await Performance.create({
             title: req.body.title,
@@ -94,34 +105,41 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
         })
         await performance.setImage(image)
 
-        await Promise.all( req.body.tickets.map( async (info)=>{
-            let numberCount = 0;
-            while(numberCount !== parseInt(info.number,10)){
-                // 티켓 db 생성
-                const ticket = await Ticket.create({
-                    name: req.body.title,
-                    price: info.price,
-                    PerformanceId: performance.id,
-                    description: req.body.description
-                })
+        for (let i = 0 ; i < repeatCount ; i += 1){
+            await Promise.all( req.body.tickets.map( async (info)=>{
+                console.log(i)
+                let numberCount = 0;
+                while(numberCount !== parseInt(info.number,10)){
+                    // 티켓 db 생성
+                    const ticket = await Ticket.create({
+                        name: req.body.title,
+                        price: info.price,
+                        PerformanceId: performance.id,
+                        description: req.body.description,
+                        day: req.body.term_start_at + i, // 수정
+                        start_at: req.body.start_at,
+                        end_at: req.body.end_at
+                    })
 
-                await ticket.setImage(image.id) // 티켓에 이미지 넣기
-                await ticket.addRecords(req.user.id) // 티켓 소유자 기록 넣기
-                await influencer.addOwned(ticket.id) // 티켓 소유자 넣기
-                await ticket.setCreater(influencer.id) // 티켓 생성자 넣기
-                //
-                console.log("티켓 생성", info)
-                //좌석 db 생성
-                await Seat.create({
-                    class: info.class,
-                    number: info.number,
-                    PerformanceId: performance.id,
-                    TicketId: ticket.id
-                })
+                    await ticket.setImage(image.id) // 티켓에 이미지 넣기
+                    await ticket.addRecords(req.user.id) // 티켓 소유자 기록 넣기
+                    await influencer.addOwned(ticket.id) // 티켓 소유자 넣기
+                    await ticket.setCreater(influencer.id) // 티켓 생성자 넣기
+                    //
+                    console.log("티켓 생성", info)
+                    //좌석 db 생성
+                    await Seat.create({
+                        class: info.class,
+                        number: info.number,
+                        PerformanceId: performance.id,
+                        TicketId: ticket.id
+                    })
 
-                numberCount += 1;
-            }
-        }))
+                    numberCount += 1;
+                }
+            }))
+        }
+
 
         res.status(200).send("공연 정보 생성이 완료 되었습니다.")
     } catch(err){
