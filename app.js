@@ -91,7 +91,7 @@ app.use(`/ticketbook`, ticketbookRouter)
 app.use((req, res, next) =>{
     const error = new Error (`${req.method} ${req.url} 라우터가 없습니다.`)
     error.status = 404;
-    log.info(`hello`)
+    logger.info(`hello`)
     logger.error(error.message);
     next(error)
 });
