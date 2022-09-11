@@ -23,6 +23,18 @@ module.exports = (sequelize, DataTypes) => {
         coordinate: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
+        },
+        day: {
+            type: DataTypes.DATE,
+            allowNull: false
+        },
+        start_at: {
+            type: DataTypes.DATE,
+            allowNull: false
+        },
+        end_at: {
+            type: DataTypes.DATE,
+            allowNull: false
         }
 
         // 꾸며졌다는 boolean 추가 예정
