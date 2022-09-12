@@ -3,7 +3,7 @@ const multer = require(`multer`)
 const path = require(`path`)
 const fs = require(`fs`)
 
-const { Performance, Ticket, Seat, Image, User } = require(`../models`)
+const { Performance, Ticket, Seat, Image, User, Seatgui } = require(`../models`)
 
 const { isLoggedIn } = require(`./middlewares`)
 
@@ -149,7 +149,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
 
 // 행사 검색 조회
 router.get(`/:SearchWord/search`,  async (req, res, next) => {
-    /* 	#swagger.tags = ['Performances']
+    /* 	#swagger.tags = ['Performance']
         #swagger.summary = `행사 검색 조회`
         #swagger.description = '행사 검색 조회'
         */
@@ -187,7 +187,7 @@ router.get(`/:SearchWord/search`,  async (req, res, next) => {
 // 모든 공연 정보 보기
 
 router.get(`/`,  async (req, res, next) => {
-    /* 	#swagger.tags = ['Performances']
+    /* 	#swagger.tags = ['Performance']
         #swagger.summary = `모든 공연 정보 보기`
         #swagger.description = '모든 공연 정보 보기'
         */
@@ -211,6 +211,48 @@ router.get(`/`,  async (req, res, next) => {
         next(err)
     }
 } )
+
+//공연 좌석 GUI 저장
+router.post(`/:performanceId/seatgui`, async (req,res, next) => {
+    try{
+        if(!req.body.seats){
+            res.status(400).send("좌석 정보 입력하세요.")
+        }
+        await Promise.all(req.body.seats.map( async seat=>{
+            await Seatgui.create({
+                seatNumber: seat.seatNumber,
+                x: seat.x,
+                y: seat.y,
+                status: seat.status,
+                color: seat.color,
+                PerformanceId: req.params.performanceId
+            })
+
+        }))
+
+        const seatgui = await Seatgui.findAll({
+            where: { PerformanceId: req.params.performanceId}
+        })
+        res.status(201).json(seatgui)
+    }catch (e){
+        console.error(e)
+        next(e)
+    }
+})
+
+
+//공연 좌석 GUI
+router.get(`/:performanceId/seatgui`, async (req,res, next) => {
+    try{
+        const seatgui = await Seatgui.findAll({
+            where: { PerformanceId: req.params.performanceId}
+        })
+        res.status(200).json(seatgui)
+    }catch (e){
+        console.error(e)
+        next(e)
+    }
+})
 
 // 공연 상세 정보 보기
 
