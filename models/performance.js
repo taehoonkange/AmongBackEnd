@@ -49,6 +49,7 @@ module.exports = (sequelize, DataTypes) => {
         db.Performance.hasMany(db.Ticket) // 공연 티켓들
         db.Performance.hasOne(db.Image) // 공연 이미지
         db.Performance.belongsTo(db.User) // 누가 개최했는지
+        db.Performance.hasMany(db.Seatgui) // 행사 티켓 gui
     }
 
     return Performance;

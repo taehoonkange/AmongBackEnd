@@ -36,7 +36,7 @@ const redisClient = redis.createClient({
 const app = express()
 
 
-db.sequelize.sync({force: false})
+db.sequelize.sync({force: true})
     .then(() =>{
         console.log(`db 연결 성공`)
     })
