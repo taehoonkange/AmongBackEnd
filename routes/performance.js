@@ -3,7 +3,7 @@ const multer = require(`multer`)
 const path = require(`path`)
 const fs = require(`fs`)
 
-const { Performance, Ticket, Seat, Image, User } = require(`../models`)
+const { Performance, Ticket, Seat, Image, User, Seatgui } = require(`../models`)
 
 const { isLoggedIn } = require(`./middlewares`)
 
@@ -71,7 +71,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
 
         let image = {}
         if (req.body.image) {
-             // 이미지를 하나만 올리면 image: 제로초.png
+            // 이미지를 하나만 올리면 image: 제로초.png
             image = await Image.create({
                 src: req.body.image
             })
@@ -104,39 +104,38 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             UserId: req.user.id
         })
         await performance.setImage(image)
-
         for (let i = 0 ; i < repeatCount ; i += 1){
             await Promise.all( req.body.tickets.map( async (info)=>{
                 console.log(i)
-                let numberCount = 0;
-                while(numberCount !== parseInt(info.number,10)){
-                    // 티켓 db 생성
-                    const ticket = await Ticket.create({
-                        name: req.body.title,
-                        price: info.price,
-                        PerformanceId: performance.id,
-                        description: req.body.description,
-                        day: req.body.term_start_at + i, // 수정
-                        start_at: req.body.start_at,
-                        end_at: req.body.end_at
-                    })
+                // let numberCount = 0;
+                // while(numberCount !== parseInt(info.number,10)){
+                // 티켓 db 생성
+                const ticket = await Ticket.create({
+                    name: req.body.title,
+                    price: info.price,
+                    PerformanceId: performance.id,
+                    description: req.body.description,
+                    day: req.body.term_start_at + i, // 수정
+                    start_at: req.body.start_at,
+                    end_at: req.body.end_at
+                })
 
-                    await ticket.setImage(image.id) // 티켓에 이미지 넣기
-                    await ticket.addRecords(req.user.id) // 티켓 소유자 기록 넣기
-                    await influencer.addOwned(ticket.id) // 티켓 소유자 넣기
-                    await ticket.setCreater(influencer.id) // 티켓 생성자 넣기
-                    //
-                    console.log("티켓 생성", info)
-                    //좌석 db 생성
-                    await Seat.create({
-                        class: info.class,
-                        number: info.number,
-                        PerformanceId: performance.id,
-                        TicketId: ticket.id
-                    })
+                await ticket.setImage(image.id) // 티켓에 이미지 넣기
+                await ticket.addRecords(req.user.id) // 티켓 소유자 기록 넣기
+                await influencer.addOwned(ticket.id) // 티켓 소유자 넣기
+                await ticket.setCreater(influencer.id) // 티켓 생성자 넣기
+                //
+                console.log("티켓 생성", info)
+                //좌석 db 생성
+                await Seat.create({
+                    class: info.class,
+                    number: info.number,
+                    PerformanceId: performance.id,
+                    TicketId: ticket.id
+                })
 
-                    numberCount += 1;
-                }
+                //     numberCount += 1;
+                // }
             }))
         }
 
@@ -150,7 +149,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
 
 // 행사 검색 조회
 router.get(`/:SearchWord/search`,  async (req, res, next) => {
-    /* 	#swagger.tags = ['Performances']
+    /* 	#swagger.tags = ['Performance']
         #swagger.summary = `행사 검색 조회`
         #swagger.description = '행사 검색 조회'
         */
@@ -164,16 +163,16 @@ router.get(`/:SearchWord/search`,  async (req, res, next) => {
             return res.status(403).send(`현재는 공연이 없습니다.`)
         }
 
-       const checkingTitle = await Promise.all(performances.map(  (performance) => {
-           //regax로 중복검사
-           const regex = new RegExp(`${req.params.SearchWord.trim()}`, "g")
-           const isExist =performance.title.match(regex)
-           console.log(isExist)
+        const checkingTitle = await Promise.all(performances.map(  (performance) => {
+            //regax로 중복검사
+            const regex = new RegExp(`${req.params.SearchWord.trim()}`, "g")
+            const isExist =performance.title.match(regex)
+            console.log(isExist)
 
-           if(!isExist){
+            if(!isExist){
                 return null
-           }
-           return performance
+            }
+            return performance
         }))
         const result = checkingTitle.filter((element) => element != null);
 
@@ -188,7 +187,7 @@ router.get(`/:SearchWord/search`,  async (req, res, next) => {
 // 모든 공연 정보 보기
 
 router.get(`/`,  async (req, res, next) => {
-    /* 	#swagger.tags = ['Performances']
+    /* 	#swagger.tags = ['Performance']
         #swagger.summary = `모든 공연 정보 보기`
         #swagger.description = '모든 공연 정보 보기'
         */
@@ -212,6 +211,48 @@ router.get(`/`,  async (req, res, next) => {
         next(err)
     }
 } )
+
+//공연 좌석 GUI 저장
+router.post(`/:performanceId/seatgui`, async (req,res, next) => {
+    try{
+        if(!req.body.seats){
+            res.status(400).send("좌석 정보 입력하세요.")
+        }
+        await Promise.all(req.body.seats.map( async seat=>{
+            await Seatgui.create({
+                seatNumber: seat.seatNumber,
+                x: seat.x,
+                y: seat.y,
+                status: seat.status,
+                color: seat.color,
+                PerformanceId: req.params.performanceId
+            })
+
+        }))
+
+        const seatgui = await Seatgui.findAll({
+            where: { PerformanceId: req.params.performanceId}
+        })
+        res.status(201).json(seatgui)
+    }catch (e){
+        console.error(e)
+        next(e)
+    }
+})
+
+
+//공연 좌석 GUI
+router.get(`/:performanceId/seatgui`, async (req,res, next) => {
+    try{
+        const seatgui = await Seatgui.findAll({
+            where: { PerformanceId: req.params.performanceId}
+        })
+        res.status(200).json(seatgui)
+    }catch (e){
+        console.error(e)
+        next(e)
+    }
+})
 
 // 공연 상세 정보 보기
 
