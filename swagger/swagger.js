@@ -15,10 +15,6 @@ const doc = {
             description: '공연 API',
         },
         {
-            name: 'Performances',
-            description: '모든 공연 API',
-        },
-        {
             name: 'Community',
             description: '게시물 API',
         },
@@ -50,6 +46,15 @@ const doc = {
             content: "게시물 내용 입력",
             image: ["이미지 주소 입력", "", ],
             limitedReader: "VIP"
+        },
+        Seatgui: {
+            seats: [{
+                "seatNumber": 1,
+                "x": 50,
+                "y": 50,
+                "color": "#fffff",
+                "PerformanceId": 1
+            }]
         }
     }
 };

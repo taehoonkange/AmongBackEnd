@@ -214,6 +214,15 @@ router.get(`/`,  async (req, res, next) => {
 
 //공연 좌석 GUI 저장
 router.post(`/:performanceId/seatgui`, async (req,res, next) => {
+    /* 	#swagger.tags = ['Performance']
+        #swagger.summary = `행사 좌석 GUI 저장`
+        #swagger.description = '행사 좌석 GUI 저장'
+        #swagger.parameters['performance'] ={
+            in: `body`,
+            description: `공연 바디 정보`,
+            schema: { $ref: "#/definitions/Seatgui"}
+        }
+        */
     try{
         if(!req.body.seats){
             res.status(400).send("좌석 정보 입력하세요.")
@@ -243,6 +252,10 @@ router.post(`/:performanceId/seatgui`, async (req,res, next) => {
 
 //공연 좌석 GUI
 router.get(`/:performanceId/seatgui`, async (req,res, next) => {
+    /* 	#swagger.tags = ['Performance']
+        #swagger.summary = `행사 좌석 GUI 보기`
+        #swagger.description = '행사 좌석 GUI 보기'
+        */
     try{
         const seatgui = await Seatgui.findAll({
             where: { PerformanceId: req.params.performanceId}
