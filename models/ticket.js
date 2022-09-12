@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: false
         },
         day: {
-            type: DataTypes.DATE,
+            type: DataTypes.STRING,
             allowNull: false
         },
         start_at: {
@@ -37,7 +37,6 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         }
 
-        // 꾸며졌다는 boolean 추가 예정
     }, {
         modelName: 'Ticket',
         tableName: 'tickets',
