@@ -71,7 +71,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
 
         let image = {}
         if (req.body.image) {
-             // 이미지를 하나만 올리면 image: 제로초.png
+            // 이미지를 하나만 올리면 image: 제로초.png
             image = await Image.create({
                 src: req.body.image
             })
@@ -109,6 +109,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                 console.log(i)
                 // let numberCount = 0;
                 // while(numberCount !== parseInt(info.number,10)){
+
                     // 티켓 db 생성
                     const ticket = await Ticket.create({
                         name: req.body.title,
@@ -163,16 +164,16 @@ router.get(`/:SearchWord/search`,  async (req, res, next) => {
             return res.status(403).send(`현재는 공연이 없습니다.`)
         }
 
-       const checkingTitle = await Promise.all(performances.map(  (performance) => {
-           //regax로 중복검사
-           const regex = new RegExp(`${req.params.SearchWord.trim()}`, "g")
-           const isExist =performance.title.match(regex)
-           console.log(isExist)
+        const checkingTitle = await Promise.all(performances.map(  (performance) => {
+            //regax로 중복검사
+            const regex = new RegExp(`${req.params.SearchWord.trim()}`, "g")
+            const isExist =performance.title.match(regex)
+            console.log(isExist)
 
-           if(!isExist){
+            if(!isExist){
                 return null
-           }
-           return performance
+            }
+            return performance
         }))
         const result = checkingTitle.filter((element) => element != null);
 
