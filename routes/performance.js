@@ -104,12 +104,11 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             UserId: req.user.id
         })
         await performance.setImage(image)
-
         for (let i = 0 ; i < repeatCount ; i += 1){
             await Promise.all( req.body.tickets.map( async (info)=>{
                 console.log(i)
-                let numberCount = 0;
-                while(numberCount !== parseInt(info.number,10)){
+                // let numberCount = 0;
+                // while(numberCount !== parseInt(info.number,10)){
                     // 티켓 db 생성
                     const ticket = await Ticket.create({
                         name: req.body.title,
@@ -135,8 +134,8 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                         TicketId: ticket.id
                     })
 
-                    numberCount += 1;
-                }
+                //     numberCount += 1;
+                // }
             }))
         }
 
