@@ -107,6 +107,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
         for (let i = 0 ; i < repeatCount ; i += 1){
             await Promise.all( req.body.tickets.map( async (info)=>{
                 console.log(i)
+
                 // 티켓 db 생성
                 const ticket = await Ticket.create({
                     name: req.body.title,
@@ -131,6 +132,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                     PerformanceId: performance.id,
                     TicketId: ticket.id
                 })
+
 
                 // 의자 GUI 생성
                 await Seatgui.create({
