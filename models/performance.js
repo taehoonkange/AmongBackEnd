@@ -50,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
         db.Performance.hasOne(db.Image) // 공연 이미지
         db.Performance.belongsTo(db.User) // 누가 개최했는지
         db.Performance.belongsTo(db.Seatgui) // 누가 개최했는지
+
     }
 
     return Performance;
