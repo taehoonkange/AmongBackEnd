@@ -38,7 +38,7 @@ const doc = {
             start_at: "YYYY-MM-DD HH:MM:SS",
             end_at: "YYYY-MM-DD HH:MM:SS",
             description: "행사 상세 설명",
-            tickets: [{class: "좌석 등급", price: "좌석 가격", number: "좌석 번호", x: "x 좌표", y: "y 좌표", color: "색깔"},],
+            tickets: [{class: "좌석 등급", price: "좌석 가격", number: "좌석 번호", x: "x 좌표", y: "y 좌표", color: "색깔", status: "상태"},],
             image: "이미지"
         },
 

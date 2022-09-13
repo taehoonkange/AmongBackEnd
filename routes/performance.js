@@ -85,7 +85,9 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             const startTerm = new Date(req.body.term_start_at).getDate()
             const endTerm = new Date(req.body.term_end_at).getDate()
             const diffDate = endTerm - startTerm
-            repeatCount += Math.abs(diffDate / (1000 * 60 * 60 * 24));
+            if(diffDate >= 0){
+                repeatCount += diffDate;
+            }
         }
         console.log("반복 횟수", repeatCount)
         //
@@ -109,7 +111,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                 console.log(i)
                 //날짜 넣기
                 const d_day = new Date(req.body.term_start_at)
-                d_day.setDate(d_day.setDate() + i)
+                d_day.setDate(d_day.getDate() + i)
 
                 // 티켓 db 생성
                 const ticket = await Ticket.create({
