@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(9),
             allowNull: true
         },
+        day: {
+            type: DataTypes.DATE,
+            allowNull: false
+        }
 
     }, {
         modelName: 'Seatgui',
