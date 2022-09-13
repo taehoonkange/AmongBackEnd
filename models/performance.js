@@ -38,6 +38,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true
         },
+        price_infomation: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        }
     }, {
         modelName: 'Performance',
         tableName: `performances`,

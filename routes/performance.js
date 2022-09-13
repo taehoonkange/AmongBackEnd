@@ -96,6 +96,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
         const performance = await Performance.create({
             title: req.body.title,
             place: req.body.place,
+            price_infomation: req.body.price_infomation,
             time: req.body.time,
             limitedAge: req.body.limitedAge,
             term_start_at: req.body.term_start_at,
