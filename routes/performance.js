@@ -107,15 +107,13 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
         for (let i = 0 ; i < repeatCount ; i += 1){
             await Promise.all( req.body.tickets.map( async (info)=>{
                 console.log(i)
-                // let numberCount = 0;
-                // while(numberCount !== parseInt(info.number,10)){
                 // 티켓 db 생성
                 const ticket = await Ticket.create({
                     name: req.body.title,
                     price: info.price,
                     PerformanceId: performance.id,
                     description: req.body.description,
-                    day: req.body.term_start_at + i, // 수정
+                    day: new Date(req.body.term_start_at).getDate() + i, // 수정
                     start_at: req.body.start_at,
                     end_at: req.body.end_at
                 })
@@ -127,15 +125,23 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                 //
                 console.log("티켓 생성", info)
                 //좌석 db 생성
-                await Seat.create({
+                const seat = await Seat.create({
                     class: info.class,
                     number: info.number,
                     PerformanceId: performance.id,
                     TicketId: ticket.id
                 })
 
-                //     numberCount += 1;
-                // }
+                // 의자 GUI 생성
+                await Seatgui.create({
+                    seatNumber: seat.number,
+                    x: info.x,
+                    y: info.y,
+                    status: info.status,
+                    color: info.color,
+                    PerformanceId: performance.id
+                })
+
             }))
         }
 
@@ -211,43 +217,6 @@ router.get(`/`,  async (req, res, next) => {
         next(err)
     }
 } )
-
-//공연 좌석 GUI 저장
-router.post(`/:performanceId/seatgui`, async (req,res, next) => {
-    /* 	#swagger.tags = ['Performance']
-        #swagger.summary = `행사 좌석 GUI 저장`
-        #swagger.description = '행사 좌석 GUI 저장'
-        #swagger.parameters['performance'] ={
-            in: `body`,
-            description: `공연 바디 정보`,
-            schema: { $ref: "#/definitions/Seatgui"}
-        }
-        */
-    try{
-        if(!req.body.seats){
-            res.status(400).send("좌석 정보 입력하세요.")
-        }
-        await Promise.all(req.body.seats.map( async seat=>{
-            await Seatgui.create({
-                seatNumber: seat.seatNumber,
-                x: seat.x,
-                y: seat.y,
-                status: seat.status,
-                color: seat.color,
-                PerformanceId: req.params.performanceId
-            })
-
-        }))
-
-        const seatgui = await Seatgui.findAll({
-            where: { PerformanceId: req.params.performanceId}
-        })
-        res.status(201).json(seatgui)
-    }catch (e){
-        console.error(e)
-        next(e)
-    }
-})
 
 
 //공연 좌석 GUI
