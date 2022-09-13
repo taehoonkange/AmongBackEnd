@@ -170,6 +170,9 @@ router.get(`/:SearchWord/search`,  async (req, res, next) => {
     // const regex = /`${req.params.SearchWord}`/;
     try{
         const performances = await Performance.findAll({
+            include:[{
+                model: Image
+            }]
         })
 
         if(!performances){
@@ -212,6 +215,8 @@ router.get(`/`,  async (req, res, next) => {
                     model: Seat,
                     attributes: [`class`, `number`]
                 }]
+            },{
+                model: Image
             }
             ]
         })
@@ -257,7 +262,10 @@ router.get(`/:performerceId/detail`,  async (req, res, next) => {
                 include:[{
                     model: Seat,
                     attributes: [`class`, `number`]
-                }]
+                }
+                ]
+            },{
+                model: Image
             }
             ]
         })
