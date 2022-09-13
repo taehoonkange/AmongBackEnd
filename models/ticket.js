@@ -25,7 +25,8 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: false
         },
         day: {
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER,
+
             allowNull: false
         },
         start_at: {

@@ -15,10 +15,6 @@ const doc = {
             description: '공연 API',
         },
         {
-            name: 'Performances',
-            description: '모든 공연 API',
-        },
-        {
             name: 'Community',
             description: '게시물 API',
         },
@@ -42,7 +38,7 @@ const doc = {
             start_at: "YYYY-MM-DD HH:MM:SS",
             end_at: "YYYY-MM-DD HH:MM:SS",
             description: "행사 상세 설명",
-            tickets: [{class: "좌석 등급", price: "좌석 가격", number: "좌석 번호"},],
+            tickets: [{class: "좌석 등급", price: "좌석 가격", number: "좌석 번호", x: "x 좌표", y: "y 좌표", color: "색깔"},],
             image: "이미지"
         },
 
@@ -50,7 +46,7 @@ const doc = {
             content: "게시물 내용 입력",
             image: ["이미지 주소 입력", "", ],
             limitedReader: "VIP"
-        }
+        },
     }
 };
 
