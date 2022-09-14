@@ -2,7 +2,7 @@ const express = require(`express`)
 const multer = require(`multer`)
 const path = require(`path`)
 const fs = require(`fs`)
-
+const { Op } = require(`sequelize`)
 const { Performance, Ticket, Seat, Image, User, Seatgui } = require(`../models`)
 
 const { isLoggedIn } = require(`./middlewares`)
@@ -90,7 +90,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             }
         }
         console.log("반복 횟수", repeatCount)
-        //
+        // 공연 시간에 따른
 
         // 공연 db 생성
         const performance = await Performance.create({
@@ -118,6 +118,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                 const ticket = await Ticket.create({
                     name: req.body.title,
                     price: info.price,
+                    originalPrice: info.price,
                     PerformanceId: performance.id,
                     description: req.body.description,
                     day: d_day, // 수정
@@ -128,7 +129,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                 await ticket.setImage(image.id) // 티켓에 이미지 넣기
                 await ticket.addRecords(req.user.id) // 티켓 소유자 기록 넣기
                 await influencer.addOwned(ticket.id) // 티켓 소유자 넣기
-                await ticket.setCreater(influencer.id) // 티켓 생성자 넣기
+                await ticket.addCreates(req.user.id) // 티켓 생성자 넣기
                 //
                 console.log("티켓 생성", info)
                 //좌석 db 생성
@@ -250,13 +251,52 @@ router.get(`/:performanceId/seatgui`, async (req,res, next) => {
 })
 
 // 공연 상세 정보 보기
-
+// 공연 종료 시간에 따라 done 표시
 router.get(`/:performerceId/detail`,  async (req, res, next) => {
     /* 	#swagger.tags = ['Performance']
     #swagger.summary = `공연 상세 정보 보기`
         #swagger.description = '공연 상세 정보 보기' */
     try{
+        const currentTime = new Date()
+
         const performance = await Performance.findOne({
+            where: { id: req.params.performerceId}
+        })
+        if(!performance){
+            return res.status(403).send(`존재하지 않는 공연입니다.`)
+        }
+
+        const closed = new Date(performance.term_end_at)
+        const endTime = new Date (performance.end_at)
+        closed.setHours(endTime.getHours(), endTime.getMinutes())
+
+        if( currentTime >= closed ){
+            // 공연 상태 : INPROCESS => DONE
+            // 티켓 상태 : SALE(공연 판매)=> EXPIRED
+            //           SALE(리셀 판매),OWNED => USED
+            await Performance.update({
+                performanceStatus: `DONE`
+            }, {where: {id: performance.id}})
+
+            const tickets = await Ticket.findAll({
+                where: { PerformanceId: performance.id}
+            })
+            await Promise.all(tickets.map( async (ticket) =>{
+               await Ticket.update({
+                   status: `EXPIRED`
+               }, {where: {id: ticket.id, status: `SALE`, OwnerId: performance.UserId}})
+            }))
+
+            await Promise.all(tickets.map( async (ticket) =>{
+                await Ticket.update({
+                    status: `USED`
+                }, {where: {id: ticket.id, status: {
+                    [Op.or]: [`OWNED`, `SALE`]
+                        }}})
+            }))
+
+        }
+        const Fullperformance = await Performance.findOne({
             where: { id: req.params.performerceId},
             include:[{
                 model: Ticket,
@@ -267,13 +307,13 @@ router.get(`/:performerceId/detail`,  async (req, res, next) => {
                 ]
             },{
                 model: Image
+            },{
+                model: Seatgui
             }
             ]
         })
-        if(!performance){
-            return res.status(403).send(`존재하지 않는 공연입니다.`)
-        }
-        res.status(201).json(performance)
+
+        res.status(201).json(Fullperformance)
     } catch(err){
         console.error(err)
         next(err)
