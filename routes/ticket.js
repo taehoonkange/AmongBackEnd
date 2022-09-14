@@ -3,6 +3,7 @@ const express = require(`express`)
 const { Ticket, User, Image, Performance } = require(`../models`)
 
 const {isLoggedIn} = require("./middlewares");
+const {Op} = require("sequelize");
 
 const router = express.Router()
 
@@ -201,14 +202,14 @@ router.patch(`/:ticketId/buy`, isLoggedIn, async (req, res, next) => {
 
 // 리셀 티켓 보기
 
-// 공연에서 판매하는 티켓은 아니어야한다.
-// performanceId
 router.get(`/resale`, async (req, res, next) => {
     /* 	#swagger.tags = ['Ticket']
     #swagger.summary = `리셀 티켓 보기`
     #swagger.description = '리셀 티켓 보기'
     */
     try{
+        const currentTime = new Date()
+
         const performances = await Performance.findAll({
             include: [{
                 model: Ticket,
@@ -217,41 +218,63 @@ router.get(`/resale`, async (req, res, next) => {
                     model: User,
                     as: `Creates`,
                     attributes: [`id`]
+                }, {
+                    model : Image,
+                    attributes: [`src`]
                 }]
             }]
         })
         console.log(JSON.stringify(performances))
-        const tickets = await Promise.all (performances.map(  (perform) => {
-            const createrId = perform.Tickets[0].Creates.id
-            const fix = perform.Tickets.map( async (ticket) =>{
-                // 공연 판매 티켓
-                if( ticket.OwnerId === createrId){
-                    return
-                }
-                // 리셀 티켓
-                return await Ticket.findOne({
-                    where: { id: ticket.id},
-                    include:[{
-                        model: Image
-                    }, {
-                        model: User,
-                        as: `Creates`,
-                        attributes: [`id`, `nickname`]
-                    }
-                    ]
+        performances.map( async performance => {
+            const closed = new Date(performance.term_end_at)
+            const endTime = new Date (performance.end_at)
+            closed.setHours(endTime.getHours(), endTime.getMinutes())
+            if( currentTime >= closed ){
+                // 공연 상태 : INPROCESS => DONE
+                // 티켓 상태 : SALE(공연 판매)=> EXPIRED
+                //           SALE(리셀 판매),OWNED => USED
+                await Performance.update({
+                    performanceStatus: `DONE`
+                }, {where: {id: performance.id}})
+
+                const tickets = await Ticket.findAll({
+                    where: { PerformanceId: performance.id}
                 })
+                await Promise.all(tickets.map( async (ticket) =>{
+                    await Ticket.update({
+                        status: `EXPIRED`
+                    }, {where: {id: ticket.id, status: `SALE`, OwnerId: performance.UserId}})
+                }))
+
+                await Promise.all(tickets.map( async (ticket) =>{
+                    await Ticket.update({
+                        status: `USED`
+                    }, {where: {id: ticket.id, status: {
+                                [Op.or]: [`OWNED`, `SALE`]
+                            }}})
+                }))
+
+            }
+        })
+
+
+        let ticketList = []
+        await Promise.all (performances.map(  (perform) => {
+            const createrId = perform.Tickets[0].Creates[0].id
+            perform.Tickets.map( async (ticket) =>{
+                // 리셀 티켓
+                if( ticket.OwnerId !== createrId){
+                    ticketList.push(ticket)
+                }
             })
-            const filteredticket = fix.filter((element) => element != null);
-            console.log(filteredticket)
-            return filteredticket
         } ))
 
-       if(tickets){
-            res.status(200).json(tickets)
-        }
-        else{
+        if(Array.isArray(ticketList) && ticketList.length === 0) {
             res.status(400).send("등록된 리셀 티켓이 없습니다.")
+        }else{
+            res.status(200).json(ticketList)
         }
+
     }
     catch (e) {
         console.error(e)
