@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         status: {
             type: DataTypes.ENUM({
-            values: [`SALE`, `OWNED`, `USED`]
+            values: [`SALE`, `OWNED`, `USED`, `EXPIRED`]
                 }
             ),
             defaultValue: `SALE`,
@@ -16,10 +16,16 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true
         },
+        originalPrice:{
+            type: DataTypes.STRING(7),
+            allowNull: true
+        },
+        // orginal Price 추가 리셀 가격 때문에
         price: {
                 type: DataTypes.STRING(7),
                 allowNull: true
         },
+        //price min , max
         coordinate: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
@@ -46,8 +52,8 @@ module.exports = (sequelize, DataTypes) => {
     });
     Ticket.associate = (db) => {
         db.Ticket.hasMany(db.User,{  foreignKey: `recordId`,as: 'Records'}) // 소유자 기록
-        db.Ticket.hasOne(db.User, { as : `Creater`}) // 생성자
-        db.Ticket.belongsTo(db.User) // 소유자가 어떤 티켓을 소지하는지
+        db.Ticket.belongsToMany(db.User, { through: `CreatTicket`, as : `Creates`}) // 생성자
+        db.Ticket.belongsTo(db.User, {foreignKey: `OwnerId`}) // 소유자가 어떤 티켓을 소지하는지
         db.Ticket.belongsTo(db.Performance) // 어떤 공연의 티켓인지
         db.Ticket.hasOne(db.Image) // 티켓 이미지
         db.Ticket.hasOne(db.Seat) // 티켓 좌석
