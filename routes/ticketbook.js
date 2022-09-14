@@ -47,10 +47,10 @@ router.patch(`/:ticketId/coordinate`, isLoggedIn, upload.none(), async (req, res
         // 소유한 티켓?
         const ticket = await Ticket.findOne({
             where: { id: req.params.ticketId,
-            UserId: req.user.id}
+            UserId: req.user.id, status: `USED`}
         })
         if(!ticket){
-            res.status(400).send("다른 사람의 티켓입니다.")
+            res.status(400).send("사용하지 않았거나 본인 소유의 티켓이 아닙니다.")
         }
         await Image.update({
             src: req.body.image
@@ -67,14 +67,12 @@ router.patch(`/:ticketId/coordinate`, isLoggedIn, upload.none(), async (req, res
 })
 
 // 티켓북
-// ticketbook으로 이동하고 수정 필요!!
 
 router.get(`/tickets`, isLoggedIn, async (req, res, next) => {
     /* 	#swagger.tags = ['TicketBook']
     #swagger.summary = `티켓북`
     #swagger.description = '티켓북'
     */
-
     try{
         const ticekts = await Ticket.findAll({
             where: { status: `USED`},
