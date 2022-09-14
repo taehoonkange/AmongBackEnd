@@ -89,6 +89,7 @@ app.use(`/ticket`, ticketRouter)
 app.use(`/influencer`, influencerRouter)
 app.use(`/ticketbook`, ticketbookRouter)
 
+
 app.use((req, res, next) =>{
     const error = new Error (`${req.method} ${req.url} 라우터가 없습니다.`)
     error.status = 404;
@@ -96,6 +97,7 @@ app.use((req, res, next) =>{
     logger.error(error.message);
     next(error)
 });
+
 
 app.listen(3065, () =>{
     console.log(`서버 실행 중..`)
