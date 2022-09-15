@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
         collate: `utf8mb4_general_ci`
     });
     Ticket.associate = (db) => {
-        db.Ticket.hasMany(db.User,{  foreignKey: `recordId`,as: 'Records'}) // 소유자 기록
+        db.Ticket.belongsToMany(db.User,{  through: 'Record',as: 'Records'}) // 소유자 기록
         db.Ticket.belongsToMany(db.User, { through: `CreatTicket`, as : `Creates`}) // 생성자
         db.Ticket.belongsTo(db.User, {foreignKey: `OwnerId`}) // 소유자가 어떤 티켓을 소지하는지
         db.Ticket.belongsTo(db.Performance) // 어떤 공연의 티켓인지
