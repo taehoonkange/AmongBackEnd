@@ -181,6 +181,10 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
                     attributes: [`class`,`number`]
                 },{
                     model: User,
+                    as: `Creates`,
+                    attributes: [`id`]
+                },{
+                    model: User,
                     as: `Records`,
                     attributes: [`id`, `nickname`]
                 }]
