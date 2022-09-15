@@ -174,13 +174,13 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
                 model: Ticket,
                 as: `Owned`,
                 attributes: {
-                    exclude: [`UserId`]
+                    exclude: [`OwnerId`]
                 },
                 include: [{
                     model: Seat,
                     attributes: [`class`,`number`]
                 },{
-                    model: Ticket,
+                    model: User,
                     as: `Records`,
                     attributes: [`id`, `nickname`]
                 }]
