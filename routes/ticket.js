@@ -147,51 +147,65 @@ router.patch(`/:price/:ticketId/register`, isLoggedIn, async (req, res, next) =>
 })
 
 // 티켓 구매
-router.patch(`/:ticketId/buy`, isLoggedIn, async (req, res, next) => {
+router.post(`/buy`, isLoggedIn, async (req, res, next) => {
     /* 	#swagger.tags = ['Ticket']
     #swagger.summary = `티켓 구매`
     #swagger.description = '티켓 구매'
+    #swagger.parameters['buy'] ={
+            in: `body`,
+            description: `티켓 사용`,
+            schema: { $seats: [1, 2]}
+        }
     */
     try{
-        const saleTicket = await Ticket.findOne({
-            where: {id: req.params.ticketId,
-                status: `SALE`},
-            include:[{
-                model: User,
-                as: `Creates`,
-                attributes:[ `id`, `nickname`]
-            }]
-        })
+        const seatsnumber = req.body.seats
+        const tickets = []
+        await  Promise.all(seatsnumber.map( async number=> {
+            const saleTicket = await Ticket.findOne({
+                where: {id: number,
+                    status: `SALE`},
+                include:[{
+                    model: User,
+                    as: `Creates`,
+                    attributes:[ `id`, `nickname`]
+                }]
+            })
 
-        // 티켓 구매 여부
-        if(!saleTicket){
-            res.status(400).send("이 티켓은 살 수 없습니다.")
-        }
-        else{
-            const createrId = saleTicket.Creates[0].id
-            console.log(saleTicket)
-            // 자기 자신 티켓 사면 안됨
-            if( req.user.id === saleTicket.OwnerId){
-                res.status(400).send(" 자기 티켓을 구매할 수 없습니다.")
+            // 티켓 구매 여부
+            if(!saleTicket){
+                return
             }
-            // 자기가 발행한 티켓 사면 안됨
-            else if(req.user.id === createrId){
-                res.status(400).send("발행자는 티켓을 구매할 수 없습니다.")
-            }
-            // 구매, 소유권 양도
             else{
-                await Ticket.update({
-                    status: `OWNED`,
-                    OwnerId: req.user.id
-                }, { where: { id: saleTicket.id}})
+                const createrId = saleTicket.Creates[0].id
+                console.log(saleTicket)
+                // 자기 자신 티켓 사면 안됨
+                if( req.user.id === saleTicket.OwnerId){
+                    return
+                }
+                // 자기가 발행한 티켓 사면 안됨
+                else if(req.user.id === createrId){
+                    return
+                }
+                // 구매, 소유권 양도
+                else{
+                    await Ticket.update({
+                        status: `OWNED`,
+                        OwnerId: req.user.id
+                    }, { where: { id: saleTicket.id}})
 
-                //소유자 기록
-                await saleTicket.addRecords(req.user.id)
-                res.status(200).send("티켓 구매를 성공하였습니다.")
+                    //소유자 기록
+                    await saleTicket.addRecords(req.user.id)
+                    tickets.push(saleTicket)
+                }
+
             }
-
+        }))
+        if(Array.isArray(tickets) && tickets.length === 0){
+            return  res.status(400).send("티켓 구매를 실패하였습니다.")
+        } else if(Array.isArray(tickets) && tickets.length < seatsnumber.length){
+            return  res.status(400).send("일부 티켓만 구매 되었습니다.")
         }
-
+        return res.status(200).send("티켓 구매를 성공하였습니다.")
     }
     catch (e) {
         console.error(e)
