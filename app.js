@@ -47,15 +47,22 @@ if(process.env.NODE_ENV === `production`){
     app.use(morgan(`combined`))
     app.use(hpp());
     app.use(helmet({ contentSecurityPolicy: false }));
+    app.use(cors({
+        // frontserver address
+        origin: [`http://localhost:3060`],
+        credentials: true
+    }))
 }else{
     app.use(morgan(`dev`))
+    app.use(cors({
+        // frontserver address
+        origin: true,
+        credentials: true
+    }))
+
 }
 
-app.use(cors({
-    // frontserver address
-    origin: true,
-    credentials: true
-}))
+
 
 
 app.use(`/`, express.static(path.join(__dirname, `uploads`)))
@@ -69,7 +76,8 @@ app.use(session({
     secret: process.env.COOKIE_SECRET,
     cookie: {
         httpOnly: true,
-        secure: false
+        secure: false,
+        // domain: process.env.NODE_ENV === `production` && `.amongapi.shop`
     },
     store: new RedisStore({client: redisClient})
 
@@ -98,7 +106,9 @@ app.use((req, res, next) =>{
     next(error)
 });
 
-
+app.get(`/`, (req, res) =>{
+    res.send(`hello express`)
+})
 app.listen(3065, () =>{
     console.log(`서버 실행 중..`)
 })
