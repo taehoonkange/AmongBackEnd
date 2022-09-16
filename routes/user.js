@@ -180,6 +180,9 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
                     model: Seat,
                     attributes: [`class`,`number`]
                 },{
+                    model: Image,
+                    attributes: [`src`]
+                },{
                     model: User,
                     as: `Creates`,
                     attributes: [`id`]
