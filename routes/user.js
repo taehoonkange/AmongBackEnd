@@ -130,9 +130,7 @@ router.get(`/id/:id`, async (req, res, next) => {
         #swagger.description = '유저 정보'
         #swagger.parameters['{id}'] = {
             in: 'parameters',
-
             description: '유저 정보 조회',
-
     } */
     try {
         const user = await User.findOne({
