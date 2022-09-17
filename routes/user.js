@@ -130,9 +130,7 @@ router.get(`/id/:id`, async (req, res, next) => {
         #swagger.description = '유저 정보'
         #swagger.parameters['{id}'] = {
             in: 'parameters',
-
             description: '유저 정보 조회',
-
     } */
     try {
         const user = await User.findOne({
@@ -179,6 +177,9 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
                 include: [{
                     model: Seat,
                     attributes: [`class`,`number`]
+                },{
+                    model: Image,
+                    attributes: [`src`]
                 },{
                     model: User,
                     as: `Creates`,
@@ -277,7 +278,7 @@ router.patch(`/profile/image` , isLoggedIn, upload.none(),async (req, res, next)
         if (req.body.image) {
             { // 이미지를 하나만 올리면 image: 제로초.png
                 const image = await Image.create({ src: req.body.image });
-                await user.addImage(image);
+                await user.setImage(image);
             }
         }
 
