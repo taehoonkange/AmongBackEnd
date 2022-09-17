@@ -106,10 +106,10 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
             description: req.body.description,
             UserId: req.user.id
         })
+        console.log(`이미지 공연에 넣기 `, image)
         await performance.setImage(image)
         for (let i = 0 ; i < repeatCount ; i += 1){
             await Promise.all( req.body.tickets.map( async (info)=>{
-                console.log(i)
                 //날짜 넣기
                 const d_day = new Date(req.body.term_start_at)
                 d_day.setDate(d_day.getDate() + i)
@@ -125,7 +125,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                     start_at: req.body.start_at,
                     end_at: req.body.end_at
                 })
-
+                console.log(`이미지 티켓에 넣기 ${i}`, image)
                 await ticket.setImage(image.id) // 티켓에 이미지 넣기
                 await ticket.addRecords(req.user.id) // 티켓 소유자 기록 넣기
                 await influencer.addOwned(ticket.id) // 티켓 소유자 넣기
