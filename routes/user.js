@@ -278,7 +278,7 @@ router.patch(`/profile/image` , isLoggedIn, upload.none(),async (req, res, next)
         if (req.body.image) {
             { // 이미지를 하나만 올리면 image: 제로초.png
                 const image = await Image.create({ src: req.body.image });
-                await user.addImage(image);
+                await user.setImage(image);
             }
         }
 
