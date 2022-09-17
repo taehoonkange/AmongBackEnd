@@ -123,12 +123,13 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                     description: req.body.description,
                     day: d_day, // 수정
                     start_at: req.body.start_at,
-                    end_at: req.body.end_at
+                    end_at: req.body.end_at,
+                    ImageId: image.id
                 })
                 console.log(`이미지 티켓에 넣기 ${i}`, image)
+                await influencer.addOwned(ticket.id) // 티켓 소유자 넣기
                 await ticket.setImage(image.id) // 티켓에 이미지 넣기
                 await ticket.addRecords(req.user.id) // 티켓 소유자 기록 넣기
-                await influencer.addOwned(ticket.id) // 티켓 소유자 넣기
                 await ticket.addCreates(req.user.id) // 티켓 생성자 넣기
                 //
                 console.log("티켓 생성", info)
