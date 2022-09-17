@@ -128,7 +128,7 @@ router.post(`/`, isLoggedIn, upload.none(), async (req, res, next) => {
                 })
                 console.log(`이미지 티켓에 넣기 ${i}`, image)
                 await influencer.addOwned(ticket.id) // 티켓 소유자 넣기
-                await ticket.setImage(image.id) // 티켓에 이미지 넣기
+                await ticket.addGetImg(image.id) // 티켓에 이미지 넣기
                 await ticket.addRecords(req.user.id) // 티켓 소유자 기록 넣기
                 await ticket.addCreates(req.user.id) // 티켓 생성자 넣기
                 //

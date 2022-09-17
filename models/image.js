@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) =>  {
     Image.associate = (db) => {
         db.Image.belongsTo(db.Post);
         db.Image.belongsTo(db.User);
-        db.Image.belongsTo(db.Ticket);
+        db.Image.belongsToMany(db.Ticket, {through: `ticketImage`, as: `SetImg`});
         db.Image.belongsTo(db.Performance);
         db.Image.belongsTo(db.Influencer);
     }

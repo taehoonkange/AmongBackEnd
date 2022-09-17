@@ -179,6 +179,7 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
                     attributes: [`class`,`number`]
                 },{
                     model: Image,
+                    as: `GetImg`,
                     attributes: [`src`]
                 },{
                     model: User,
