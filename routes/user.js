@@ -179,6 +179,7 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
                     attributes: [`class`,`number`]
                 },{
                     model: Image,
+                    as: `GetImg`,
                     attributes: [`src`]
                 },{
                     model: User,
@@ -199,6 +200,44 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
         next(err)
     }
 })
+
+
+// 인플루언서 판매 티켓 조회
+router.get( `/influenceTicket`, isLoggedIn, async(req, res, next) =>{
+    /* 	#swagger.tags = ['User']
+        #swagger.summary = `인플루언서 티켓 조회`
+        #swagger.description = '유저 티켓 조회 로그인 필요' */
+
+    try{
+        const tickets = await Ticket.findAll({
+            where: {OwnerId: req.user.id},
+            include: [{
+                model: Seat,
+                attributes: [`class`,`number`]
+            },{
+                model: Image,
+                as: `GetImg`,
+                attributes: [`src`]
+            },{
+                model: User,
+                as: `Creates`,
+                where: {id: req.user.id},
+                attributes: [`id`]
+            },{
+                model: User,
+                as: `Records`,
+                attributes: [`id`, `nickname`]
+            }]
+        })
+
+        res.status(200).json(tickets);
+    }
+    catch(err){
+        console.error(err)
+        next(err)
+    }
+})
+
 
 //닉네임 변경
 

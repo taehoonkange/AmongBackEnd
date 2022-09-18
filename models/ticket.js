@@ -56,7 +56,7 @@ module.exports = (sequelize, DataTypes) => {
         db.Ticket.belongsToMany(db.User, { through: `CreatTicket`, as : `Creates`}) // 생성자
         db.Ticket.belongsTo(db.User, {foreignKey: `OwnerId`}) // 소유자가 어떤 티켓을 소지하는지
         db.Ticket.belongsTo(db.Performance) // 어떤 공연의 티켓인지
-        db.Ticket.hasOne(db.Image) // 티켓 이미지
+        db.Ticket.belongsToMany(db.Image, { through: `ticketImage`, as: `GetImg`}) // 티켓 이미지
         db.Ticket.hasOne(db.Seat) // 티켓 좌석
 
     }
