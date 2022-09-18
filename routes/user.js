@@ -2,7 +2,7 @@ const express = require(`express`)
 const passport = require(`passport`)
 const path = require(`path`)
 const multer = require(`multer`)
-const { User, Ticket, Seat, Image } = require(`../models`)
+const { User, Ticket, Seat, Image, Performance } = require(`../models`)
 const { isLoggedIn, isNotLoggedIn} = require(`./middlewares`)
 const router = express.Router()
 const fs = require(`fs`)
@@ -202,35 +202,22 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
 })
 
 
-// 인플루언서 판매 티켓 조회
+// 자기가 개최한 공연 조회
 router.get( `/influenceTicket`, isLoggedIn, async(req, res, next) =>{
     /* 	#swagger.tags = ['User']
-        #swagger.summary = `인플루언서 티켓 조회`
-        #swagger.description = '유저 티켓 조회 로그인 필요' */
+        #swagger.summary = `자기가 개최한 공연 조회`
+        #swagger.description = '로그인 필요' */
 
     try{
-        const tickets = await Ticket.findAll({
-            where: {OwnerId: req.user.id},
+        const performance = await Performance.findAll({
+            where: { UserId : req.user.id},
             include: [{
-                model: Seat,
-                attributes: [`class`,`number`]
-            },{
                 model: Image,
-                as: `GetImg`,
                 attributes: [`src`]
-            },{
-                model: User,
-                as: `Creates`,
-                where: {id: req.user.id},
-                attributes: [`id`]
-            },{
-                model: User,
-                as: `Records`,
-                attributes: [`id`, `nickname`]
             }]
         })
 
-        res.status(200).json(tickets);
+        res.status(200).json(performance);
     }
     catch(err){
         console.error(err)
