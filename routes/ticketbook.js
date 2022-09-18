@@ -79,9 +79,9 @@ router.get(`/tickets`, isLoggedIn, async (req, res, next) => {
             where: { status: `USED`},
             include: [{
                 model: Seat
-            },
-                {
+            }, {
                 model: Image,
+                as: `GetImg`,
                 attributes: [`src`]
             }]
         })
