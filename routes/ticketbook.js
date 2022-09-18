@@ -47,19 +47,20 @@ router.patch(`/:ticketId/coordinate`, isLoggedIn, upload.none(), async (req, res
         // 소유한 티켓?
         const ticket = await Ticket.findOne({
             where: { id: req.params.ticketId,
-            UserId: req.user.id, status: `USED`}
+                OwnerId: req.user.id, status: `USED`}
         })
         if(!ticket){
             res.status(400).send("사용하지 않았거나 본인 소유의 티켓이 아닙니다.")
         }
-        await Image.update({
+
+        const imageId = (await ticket.getGetImg())[0].id
+        console.log(`이미지 `, imageId)
+        await ticket.removeGetImg(imageId)
+        const image = await Image.create({
             src: req.body.image
-        }, {where: {TicketId: ticket.id}})
-
-        await Ticket.update({
-            coordinate: true
-        }, { where : { id: ticket.id}})
-
+        })
+        await ticket.addGetImg(image)
+        return res.status(200).send("티켓이 꾸며졌습니다.")
     }catch (e){
         console.error(e)
         next(e)
