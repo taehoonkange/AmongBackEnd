@@ -201,6 +201,7 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
     }
 })
 
+
 // 인플루언서 판매 티켓 조회
 router.get( `/influenceTicket`, isLoggedIn, async(req, res, next) =>{
     /* 	#swagger.tags = ['User']
