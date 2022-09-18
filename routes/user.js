@@ -2,7 +2,7 @@ const express = require(`express`)
 const passport = require(`passport`)
 const path = require(`path`)
 const multer = require(`multer`)
-const { User, Ticket, Seat, Image } = require(`../models`)
+const { User, Ticket, Seat, Image, Performance } = require(`../models`)
 const { isLoggedIn, isNotLoggedIn} = require(`./middlewares`)
 const router = express.Router()
 const fs = require(`fs`)
@@ -179,6 +179,7 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
                     attributes: [`class`,`number`]
                 },{
                     model: Image,
+                    as: `GetImg`,
                     attributes: [`src`]
                 },{
                     model: User,
@@ -199,6 +200,31 @@ router.get( `/ticket`, isLoggedIn, async(req, res, next) =>{
         next(err)
     }
 })
+
+
+// 자기가 개최한 공연 조회
+router.get( `/influenceTicket`, isLoggedIn, async(req, res, next) =>{
+    /* 	#swagger.tags = ['User']
+        #swagger.summary = `자기가 개최한 공연 조회`
+        #swagger.description = '로그인 필요' */
+
+    try{
+        const performance = await Performance.findAll({
+            where: { UserId : req.user.id},
+            include: [{
+                model: Image,
+                attributes: [`src`]
+            }]
+        })
+
+        res.status(200).json(performance);
+    }
+    catch(err){
+        console.error(err)
+        next(err)
+    }
+})
+
 
 //닉네임 변경
 

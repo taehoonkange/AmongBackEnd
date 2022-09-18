@@ -312,7 +312,7 @@ router.patch(`/:ticketId/useTicket`, isLoggedIn, async (req, res, next) => {
             }]
         })
 
-        const performance = await Performance({
+        const performance = await Performance.findOne({
             where: { id: ticket.PerformanceId}
         })
         const createrId = ticket.Creates[0].id
