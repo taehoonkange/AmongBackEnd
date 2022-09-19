@@ -76,8 +76,8 @@ app.use(session({
     secret: process.env.COOKIE_SECRET,
     cookie: {
         httpOnly: true,
-        secure: true,
-        // domain: process.env.NODE_ENV === `production` && `.amongapi.shop`
+        secure: process.env.NODE_ENV === 'production',
+        domain: process.env.NODE_ENV === 'production' && '.amongapi.shop'
     },
     store: new RedisStore({client: redisClient})
 
