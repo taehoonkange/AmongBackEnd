@@ -173,18 +173,18 @@ router.post(`/buy`, isLoggedIn, async (req, res, next) => {
 
             // 티켓 구매 여부
             if(!saleTicket){
-                return
+                return []
             }
             else{
                 const createrId = saleTicket.Creates[0].id
                 console.log(saleTicket)
                 // 자기 자신 티켓 사면 안됨
                 if( req.user.id === saleTicket.OwnerId){
-                    return
+                    return []
                 }
                 // 자기가 발행한 티켓 사면 안됨
                 else if(req.user.id === createrId){
-                    return
+                    return []
                 }
                 // 구매, 소유권 양도
                 else{
@@ -234,6 +234,7 @@ router.get(`/resale`, async (req, res, next) => {
                     attributes: [`id`]
                 }, {
                     model : Image,
+                    as: `GetImg`,
                     attributes: [`src`]
                 }]
             }]
