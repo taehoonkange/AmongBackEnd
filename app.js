@@ -96,7 +96,9 @@ app.use(`/community`, communityRouter)
 app.use(`/ticket`, ticketRouter)
 app.use(`/influencer`, influencerRouter)
 app.use(`/ticketbook`, ticketbookRouter)
-
+app.get(`/`, (req, res) =>{
+    res.send(`hello express`)
+})
 
 app.use((req, res, next) =>{
     const error = new Error (`${req.method} ${req.url} 라우터가 없습니다.`)
@@ -106,9 +108,6 @@ app.use((req, res, next) =>{
     next(error)
 });
 
-app.get(`/`, (req, res) =>{
-    res.send(`hello express`)
-})
 app.listen(3065, () =>{
     console.log(`서버 실행 중..`)
 })
