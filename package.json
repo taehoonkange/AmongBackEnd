@@ -33,7 +33,7 @@
     "nodemon": "^2.0.19"
   },
   "scripts": {
-    "start": "NODE_ENV=production pm2 start app.js ",
+    "start": "NODE_ENV=production pm2-runtime start app.js ",
     "dev": "nodemon app",
     "swagger": "node swagger/swagger.js"
   }

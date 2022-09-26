@@ -18,6 +18,7 @@ module.exports =
     "database": "among_test",
     "host": process.env.MYSQL_HOST,
     "dialect": "mysql",
+    "timezone": "+09:00",
 
   },
   "production": {
@@ -26,6 +27,7 @@ module.exports =
     "database": "among_production",
     "host": process.env.MYSQL_HOST,
     "dialect": "mysql",
+    "timezone": "+09:00",
 
   }
 }
