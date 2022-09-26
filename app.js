@@ -49,7 +49,7 @@ if(process.env.NODE_ENV === `production`){
     app.use(helmet({ contentSecurityPolicy: false }));
     app.use(cors({
         // frontserver address
-        origin: [`http://localhost:3060`],
+        origin: true,
         credentials: true
     }))
 }else{
