@@ -5,26 +5,26 @@ dotenv.config();
 module.exports =
 {
   "development": {
-    "username": "root",
-    "password": process.env.SEQUELIZE_PASSWORD,
+    "username": process.env.MYSQLDB_USER,
+    "password": process.env.MYSQLDB_ROOT_PASSWORD,
     "database": "among_development",
-    "host": "127.0.0.1",
+    "host": process.env.MYSQL_HOST,
     "dialect": "mysql",
     "timezone": "+09:00",
   },
   "test": {
-    "username": "root",
-    "password": process.env.SEQUELIZE_PASSWORD,
+    "username": process.env.MYSQLDB_USER,
+    "password": process.env.MYSQLDB_ROOT_PASSWORD,
     "database": "among_test",
-    "host": "127.0.0.1",
+    "host": process.env.MYSQL_HOST,
     "dialect": "mysql",
 
   },
   "production": {
-    "username": "root",
-    "password": process.env.SEQUELIZE_PASSWORD,
+    "username": process.env.MYSQLDB_USER,
+    "password": process.env.MYSQLDB_ROOT_PASSWORD,
     "database": "among_production",
-    "host": "127.0.0.1",
+    "host": process.env.MYSQL_HOST,
     "dialect": "mysql",
 
   }
